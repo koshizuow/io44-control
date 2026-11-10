@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>io44-control</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header class="top">
+  <span class="brand">io44-control</span>
+  <span class="chip" id="conn"></span>
+  <span class="chip" id="knob"></span>
+  <span class="spacer"></span>
+  <div class="seg" id="lang"><button data-v="zh">繁中</button><button data-v="en">English</button></div>
+</header>
+<div class="banner" id="banner" hidden></div>
+<main>
+  <section class="card io">
+    <div class="cols">
+      <div class="col"><div class="head"><h2 data-i18n="inputs"></h2></div><div class="inputs" id="inputs"></div></div>
+      <div class="col"><div class="head"><h2 data-i18n="outputs"></h2></div><div id="outputs"></div></div>
+      <div class="col"><div class="head"><h2>Reverb</h2></div><div id="reverb"></div></div>
+    </div>
+    <p class="note" data-i18n="io_note"></p>
+  </section>
+  <section class="card fatcard" id="fatCard">
+    <div class="head">
+      <h2 data-i18n="fat"></h2>
+      <div class="seg" id="fatMic"></div>
+      <span class="chip" id="fatDsp"></span>
+    </div>
+    <div id="fatBox">
+      <div class="chain" id="fatChain"></div>
+      <div class="detail" id="fatDetail"></div>
+      <p class="note" data-i18n="fat_note"></p>
+    </div>
+  </section>
+  <section class="card mixer">
+    <div class="head">
+      <div class="seg buses" id="buses"></div>
+      <p class="note" id="busNote"></p>
+    </div>
+    <div class="strips">
+      <div class="channels" id="strips"></div>
+      <div class="strip master" id="master"></div>
+    </div>
+    <p class="note" data-i18n="unknown_note"></p>
+  </section>
+  <section class="card pw">
+    <div id="pwPart">
+    <div class="head"><h2 data-i18n="pw_title"></h2><span class="chip" id="pwState"></span></div>
+    <p class="note" data-i18n="pw_note"></p>
+    <ul class="names" id="pwNames"></ul>
+    <div class="row"><button class="btn" id="pwBtn"></button><span class="note" id="pwMsg"></span></div>
+    </div>
+    <div class="head rate"><h2 data-i18n="rate_title"></h2><span class="chip num" id="rateNow"></span></div>
+    <div class="seg" id="rates"></div>
+    <p class="note" data-i18n="rate_note" id="rateNote"></p>
+  </section>
+</main>
+<script src="app.js"></script>
+</body>
+</html>
