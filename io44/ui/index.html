@@ -12,10 +12,12 @@
   <span class="chip" id="conn"></span>
   <span class="chip" id="knob"></span>
   <span class="spacer"></span>
+  <div class="seg" id="layout"><button data-v="a"></button><button data-v="b"></button></div>
   <div class="seg" id="lang"><button data-v="zh">繁中</button><button data-v="en">English</button></div>
 </header>
 <div class="banner" id="banner" hidden></div>
 <main>
+  <section class="card console" id="consoleCard"><div class="cnsl" id="cnsl"></div></section>
   <section class="card io">
     <div class="cols">
       <div class="col"><div class="head"><h2 data-i18n="inputs"></h2></div><div class="inputs" id="inputs"></div></div>
@@ -59,6 +61,15 @@
     <p class="note" data-i18n="rate_note" id="rateNote"></p>
   </section>
 </main>
+<!-- the knobs' light, shared by every knob (layout A, stream-mic's) -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
+  <linearGradient id="kSkirt" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#3d434c"/><stop offset=".55" stop-color="#22262c"/><stop offset="1" stop-color="#121417"/></linearGradient>
+  <radialGradient id="kCap" cx="38%" cy="30%" r="80%"><stop offset="0" stop-color="#5b626c"/><stop offset=".45" stop-color="#2f343b"/><stop offset="1" stop-color="#181b1f"/></radialGradient>
+  <linearGradient id="kRim" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffffff" stop-opacity=".28"/><stop offset=".5" stop-color="#ffffff" stop-opacity=".04"/><stop offset="1" stop-color="#000" stop-opacity=".6"/></linearGradient>
+  <radialGradient id="kGloss" cx="50%" cy="50%" r="50%"><stop offset="0" stop-color="#fff" stop-opacity=".22"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></radialGradient>
+  <filter id="kShadow" x="-30%" y="-30%" width="160%" height="160%"><feGaussianBlur stdDeviation="2.6"/></filter>
+</defs></svg>
 <script src="app.js"></script>
+<script src="console.js"></script>
 </body>
 </html>

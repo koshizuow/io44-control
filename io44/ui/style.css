@@ -179,3 +179,86 @@ input[type=range].unknown { opacity: .3; filter: grayscale(1); }
 .rvstyles { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); margin: 4px 0 10px; }
 .rvstyles button { padding: 5px 4px; }
 .rvadv summary { cursor: pointer; color: var(--muted); margin: 10px 0 6px; font-size: 13px; }
+
+/* ---- layout A, the console (console.js): which cards each layout shows */
+body[data-layout="a"] .card.io { display: none; }
+body[data-layout="b"] .card.console { display: none; }
+.cnsl { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)) minmax(0, 1.15fr) minmax(0, 1fr); gap: 12px; }
+@media (max-width: 1100px) { .cnsl { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+@media (max-width: 700px) { .cnsl { grid-template-columns: 1fr 1fr; } }
+.cmod { background: linear-gradient(#1c2026, #161a1f); border: 1px solid #000; box-shadow: inset 0 1px 0 rgba(255,255,255,.05); border-radius: 4px; padding: 10px 10px 12px; display: grid; gap: 8px; align-content: start; min-width: 0; }
+.cmod .mh { display: flex; align-items: baseline; gap: 8px; }
+.cmod .mh b { font-size: 14px; }
+.cmod .tag { font-size: 11px; color: var(--faint); letter-spacing: .06em; }
+.cmod .k2 { display: grid; grid-template-columns: 1.35fr 1fr; align-items: end; }
+.cmod .k3 { display: grid; grid-template-columns: 1.3fr 1fr 1fr; align-items: end; }
+.cmod .k2r { display: grid; grid-template-columns: auto 1fr; align-items: center; gap: 10px; }
+.cmod .btns { display: flex; flex-wrap: wrap; gap: 6px; }
+.cmod .note { margin: 0; }
+.knob { display: grid; justify-items: center; user-select: none; touch-action: none; outline: none; min-width: 0; }
+.knob .kd { width: min(var(--k, 92px), 100%); aspect-ratio: 1; }
+.knob svg { width: 100%; height: 100%; display: block; cursor: ns-resize; }
+.knob svg.unknown { opacity: .45; }
+.knob .kn { font-size: 12.5px; font-weight: 600; margin-top: -4px; white-space: nowrap; }
+.knob .kv { font-size: 12px; color: var(--muted); white-space: nowrap; }
+.knob .kv.unknown { font-family: var(--ui); color: var(--faint); }
+.knob:focus-visible .kd { outline: 1px solid var(--accent); outline-offset: 2px; border-radius: 50%; }
+/* a lit button: a lamp in a dark key */
+.hb { border: 1px solid #000; border-radius: 3px; background: linear-gradient(#2b3038, #1c2026); color: var(--muted); font: 600 11.5px var(--ui); padding: 5px 8px; cursor: pointer; display: inline-flex; align-items: center; gap: 6px;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.07), 0 1px 2px rgba(0,0,0,.5); }
+.hb:hover { color: var(--text); }
+.hb i { width: 7px; height: 7px; border-radius: 50%; background: #2c3138; box-shadow: inset 0 1px 1px rgba(0,0,0,.6); flex: none; }
+.hb.on { color: var(--text); }
+.hb.on i { background: var(--accent); box-shadow: 0 0 6px var(--accent); }
+.hb.red.on i { background: var(--hot); box-shadow: 0 0 6px var(--hot); }
+.hb.amber.on i { background: var(--warm); box-shadow: 0 0 6px var(--warm); }
+.hb.unknown i { background: transparent; box-shadow: none; border: 1px dashed var(--faint); width: 6px; height: 6px; }
+/* the processing lamps: one per part, in the io44's order; a click opens that part below */
+.lamps { display: flex; flex-wrap: wrap; gap: 4px; }
+.lamp { font: 600 10px var(--mono); padding: 3px 5px; border-radius: 2px; background: var(--inset); color: var(--faint); border: 1px solid var(--line); cursor: pointer; }
+.lamp:hover { border-color: #46505c; color: var(--muted); }
+.lamp.on { color: #062a22; background: var(--accent); border-color: var(--accent); }
+.lamp[aria-current="true"] { outline: 1px solid var(--text); outline-offset: 1px; }
+.lamps.dspoff .lamp.on { background: #2a3d38; border-color: #2a3d38; color: #6d8d84; }
+/* the reverb's screen */
+.lcd { background: #0a1a16; border: 1px solid #000; box-shadow: inset 0 0 12px rgba(0,0,0,.8); border-radius: 3px; padding: 8px 6px; display: grid; grid-template-columns: auto 1fr auto; align-items: center; text-align: center; }
+.lcd span { display: block; color: #9ff0d8; font: 600 18px var(--ui); text-shadow: 0 0 8px rgba(79,214,180,.45); }
+.lcd small { display: block; font: 500 11px var(--mono); color: #5fae98; }
+.lcd button { background: none; border: 0; color: #3e7d6c; font-size: 20px; padding: 0 8px; cursor: pointer; }
+.lcd button:hover { color: #9ff0d8; }
+
+/* ---- layout A: the mixer as a console's (the same strips, faders and meters as B, drawn so) */
+body[data-layout="a"] .buses { border: 0; background: none; gap: 6px; overflow: visible; }
+body[data-layout="a"] .buses button { border: 1px solid #000; border-radius: 3px; background: linear-gradient(#2b3038, #1c2026); color: var(--muted); font: 600 12px var(--ui); padding: 6px 12px 6px 24px; position: relative;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.07), 0 1px 2px rgba(0,0,0,.5); }
+body[data-layout="a"] .buses button::before { content: ""; position: absolute; left: 10px; top: 50%; width: 7px; height: 7px; margin-top: -3.5px; border-radius: 50%; background: #2c3138; }
+body[data-layout="a"] .buses button[aria-pressed="true"] { color: var(--text); box-shadow: inset 0 1px 0 rgba(255,255,255,.07), 0 1px 2px rgba(0,0,0,.5); }
+body[data-layout="a"] .buses button[aria-pressed="true"]::before { background: var(--accent); box-shadow: 0 0 6px var(--accent); }
+body[data-layout="a"] .strip { background: linear-gradient(#1b1f25, #14171b); border-color: #000; box-shadow: inset 0 1px 0 rgba(255,255,255,.04); }
+body[data-layout="a"] .strip.master { background: linear-gradient(#1f242b, #15181c); }
+/* the slot: a dark groove; the fill is not drawn (the cap says where it is) */
+body[data-layout="a"] .fader .track { left: 14px; width: 6px; background: #050607; border-radius: 3px; box-shadow: inset 0 1px 2px rgba(0,0,0,.9), 0 1px 0 rgba(255,255,255,.05); }
+body[data-layout="a"] .fader .fill { display: none; }
+body[data-layout="a"] .fader .tick { left: 0; width: 34px; background: #2b3038; }
+body[data-layout="a"] .fader .tick.zero { background: #4a525d; width: 34px; }
+/* the cap: a metal key with a grip and a black line on its middle (where the value is read) */
+body[data-layout="a"] .fader .cap { left: 0; width: 34px; height: 44px; margin-top: -22px; border-radius: 3px; border: 1px solid #000;
+  background: linear-gradient(#e4e7eb 0%, #b7bdc5 18%, #8c939c 49%, #6c727a 51%, #9aa1aa 82%, #c9ced4 100%);
+  box-shadow: 0 4px 8px rgba(0,0,0,.65), inset 0 1px 0 rgba(255,255,255,.7), inset 0 -1px 0 rgba(0,0,0,.4); }
+body[data-layout="a"] .fader .cap::before { content: ""; position: absolute; left: 5px; right: 5px; top: 6px; bottom: 6px;
+  background: repeating-linear-gradient(#0000 0 4px, rgba(0,0,0,.22) 4px 5px, rgba(255,255,255,.25) 5px 6px);
+  -webkit-mask: linear-gradient(#000 0 38%, #0000 38% 62%, #000 62%); mask: linear-gradient(#000 0 38%, #0000 38% 62%, #000 62%); }
+body[data-layout="a"] .fader .cap::after { left: 3px; right: 3px; top: 50%; height: 2px; margin-top: -1px; background: #111; opacity: 1; box-shadow: 0 1px 0 rgba(255,255,255,.35); }
+body[data-layout="a"] .strip.off .fader .cap { filter: brightness(.6); }
+/* the meters: LED segments, green, then amber, then red */
+body[data-layout="a"] .meter i { width: 8px; background: #15191e; box-shadow: none; border-radius: 0;
+  -webkit-mask: repeating-linear-gradient(to top, #000 0 5px, #0000 5px 7px); mask: repeating-linear-gradient(to top, #000 0 5px, #0000 5px 7px); }
+body[data-layout="a"] .meter i b { background: linear-gradient(to top, #2fc79c 0, #2fc79c 70%, #e7c046 80%, #e7c046 90%, #ff5c5c 94%); background-size: 100% var(--h, 244px); background-position: bottom; }
+body[data-layout="a"] .strip.master .meter i { width: 14px; }
+/* mute: a key that lights amber */
+body[data-layout="a"] .strip .mute { position: relative; padding: 5px 0 5px 14px; border: 1px solid #000; background: linear-gradient(#2b3038, #1c2026); box-shadow: inset 0 1px 0 rgba(255,255,255,.07), 0 1px 2px rgba(0,0,0,.5); }
+body[data-layout="a"] .strip .mute::before { content: ""; position: absolute; left: 12px; top: 50%; width: 7px; height: 7px; margin-top: -3.5px; border-radius: 50%; background: #2c3138; }
+body[data-layout="a"] .strip .mute[aria-pressed="true"] { background: linear-gradient(#5a3a16, #3a250d); color: #ffd59a; border-color: #000; }
+body[data-layout="a"] .strip .mute[aria-pressed="true"]::before { background: var(--warm); box-shadow: 0 0 6px var(--warm); }
+/* the taller cap reaches past the slot's ends: room above and below it */
+body[data-layout="a"] .strip .body { margin: 14px 0; }

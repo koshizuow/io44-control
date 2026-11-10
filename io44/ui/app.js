@@ -486,6 +486,7 @@ function ioRender() {
   showRange('rvSize', r ? r.size * 100 : undefined, (v) => Math.round(v) + '%');
   showRange('rvHp', r ? r.hp : undefined, (v) => Math.round(v) + ' Hz');
   fatRender();
+  if (typeof consoleRender === 'function') consoleRender();
 }
 
 // ------------------------------------------------------------------ building the strips
@@ -511,6 +512,7 @@ function build() {
   $('pwNames').innerHTML = PW.map(([k, n, m]) => '<li><b>' + n + '</b><span>' + t(k) + (m ? ' · ' + t(m) : '') + '</span></li>').join('');
   $('pwBtn').onclick = pipewire;
   ioBuild();
+  if (typeof consoleBuild === 'function') consoleBuild();  // layout A (console.js)
   $('rates').innerHTML = [['auto', t('rate_auto')], [44100, '44.1 kHz'], [48000, '48 kHz'], [88200, '88.2 kHz'], [96000, '96 kHz']].map(([v, l]) => '<button data-v="' + v + '">' + l + '</button>').join('');
   for (const b of $('rates').children) b.onclick = () => rate(b.dataset.v, b.textContent);
 }
@@ -631,7 +633,8 @@ async function rate(v, label) {
   render();
 }
 
-(async function start() {
+// started once every script is in (console.js comes after this one)
+addEventListener('DOMContentLoaded', async function start() {
   build();
   try { S = await api('/api/state'); } catch (e) { banner(e.message); }
   render();
@@ -644,4 +647,4 @@ async function rate(v, label) {
   // #fat, or #fat-comp (a part picked): a link straight to the Fat Channel
   if (location.hash.startsWith('#fat')) { const p = location.hash.split('-')[1]; if (secsOf('mic1').includes(p)) { FPICK = p; fatDetailBuild(); fatRender(); } if (!/noscroll/.test(location.search)) $('fatCard').scrollIntoView(); }
   tick();
-})();
+});
