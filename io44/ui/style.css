@@ -262,3 +262,43 @@ body[data-layout="a"] .strip .mute[aria-pressed="true"] { background: linear-gra
 body[data-layout="a"] .strip .mute[aria-pressed="true"]::before { background: var(--warm); box-shadow: 0 0 6px var(--warm); }
 /* the taller cap reaches past the slot's ends: room above and below it */
 body[data-layout="a"] .strip .body { margin: 14px 0; }
+
+/* ---- which cards each layout shows, in which order */
+body[data-layout="a"] .card.scopecard, body[data-layout="a"] .card.matrixcard { display: none; }
+body[data-layout="b"] .card.mixer { display: none; }
+body[data-layout="a"] .card.console { order: 1; }
+body[data-layout="b"] .card.scopecard { order: 1; }
+.card.fatcard { order: 2; }
+body[data-layout="a"] .card.mixer, body[data-layout="b"] .card.matrixcard { order: 3; }
+body[data-layout="b"] .card.io { order: 4; }
+.card.pw { order: 5; }
+
+/* ---- layout B: the scope */
+.scopecard canvas { width: 100%; height: 300px; display: block; border-radius: 3px; touch-action: none; }
+.scopecard .legend { display: flex; flex-wrap: wrap; gap: 4px 14px; font-size: 12px; color: var(--muted); margin-left: auto; }
+.scopecard .legend i { display: inline-block; width: 10px; height: 10px; border-radius: 2px; margin-right: 5px; vertical-align: -1px; }
+.scopecard .legend .dim { color: var(--faint); }
+/* ---- layout B: the routing matrix */
+.matrix { display: grid; gap: 4px; }
+.matrix .mxh, .matrix .mxr { display: grid; grid-template-columns: minmax(150px, 1fr) repeat(3, minmax(0, 1.4fr)); gap: 4px; align-items: center; }
+.matrix .mxh span { font-size: 12px; color: var(--muted); font-weight: 600; padding: 0 8px; }
+.matrix .mxr > div { background: var(--panel2); padding: 6px 8px; min-width: 0; }
+.matrix .mxr > div:first-child { border-radius: 3px 0 0 3px; }
+.matrix .mxr > div:last-child { border-radius: 0 3px 3px 0; }
+.matrix .mxs b { font-size: 13px; }
+.matrix .mxs small { color: var(--faint); margin-left: 6px; font-size: 11px; }
+.matrix .mxm { height: 5px; background: var(--inset); border-radius: 2px; overflow: hidden; margin-top: 4px; }
+.matrix .mxm.big { height: 9px; margin: 0; }
+.matrix .mxm i { display: block; height: 100%; width: 0; background: linear-gradient(90deg, #2fc79c 0 70%, #e7c046 85%, #ff5c5c 97%); background-size: var(--mw, 300px) 100%; transition: width 60ms linear; }
+.matrix .mxc { display: grid; grid-template-columns: 1fr 64px 26px; gap: 8px; align-items: center; }
+.matrix .mxbar { height: 18px; background: var(--inset); border: 1px solid #000; border-radius: 2px; position: relative; overflow: hidden; cursor: ew-resize; touch-action: none; outline: none; }
+.matrix .mxbar b { position: absolute; left: 0; top: 0; bottom: 0; background: linear-gradient(90deg, #1f5c4e, var(--accent)); }
+.matrix .mxbar:focus-visible { outline: 1px solid var(--accent); }
+.matrix .mxc.off .mxbar b { background: #2b3038; }
+.matrix .mxc.unknown .mxbar b { opacity: .3; }
+.matrix .mxc .num { font-size: 12px; text-align: right; white-space: nowrap; }
+.matrix .mxc.off .num, .matrix .mxc.unknown .num { color: var(--faint); }
+.matrix .mxmute { width: 26px; height: 20px; border-radius: 2px; border: 1px solid #000; background: #22272e; font: 600 10px var(--mono); color: var(--faint); cursor: pointer; padding: 0; }
+.matrix .mxmute[aria-pressed="true"] { background: #5a3a16; color: #ffd59a; }
+.matrix .mxo > div { background: none; }
+@media (max-width: 760px) { .matrix .mxh, .matrix .mxr { grid-template-columns: 110px repeat(3, minmax(0, 1fr)); } .matrix .mxc { grid-template-columns: 1fr 22px; } .matrix .mxc .num { display: none; } }

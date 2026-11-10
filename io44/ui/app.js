@@ -333,6 +333,7 @@ function fatRender() {
   if (sec === 'voicefx') for (const b of $('fd_model').children) b.setAttribute('aria-pressed', String(+b.dataset.v === f.voicefx.model));
   for (const it of knobsOf(sec)) showRow(it, 'fd_' + it[0], f[sec][it[0]]);
   if ($('fatEq') && !eqHold) drawFatEq();
+  if (typeof scopeRender === 'function') scopeRender();
 }
 
 // the EQ's curve (stream-mic's drawing): the low cut, the three bands (settings.EQ_BANDS) and the mid bell (moved both ways)
@@ -522,6 +523,7 @@ function build() {
   $('pwBtn').onclick = pipewire;
   ioBuild();
   if (typeof consoleBuild === 'function') consoleBuild();  // layout A (console.js)
+  if (typeof scopeBuild === 'function') scopeBuild();      // layout B (scope.js)
   $('rates').innerHTML = [['auto', t('rate_auto')], [44100, '44.1 kHz'], [48000, '48 kHz'], [88200, '88.2 kHz'], [96000, '96 kHz']].map(([v, l]) => '<button data-v="' + v + '">' + l + '</button>').join('');
   for (const b of $('rates').children) b.onclick = () => rate(b.dataset.v, b.textContent);
 }
@@ -617,6 +619,7 @@ async function tick() {
       setBars($('master').querySelector('.meter'), out);
       $('master').querySelector('.val').textContent = Math.max(...out).toFixed(0) + ' dB';
       DEV = m.device; ioRender();
+      if (typeof scopePush === 'function') { scopePush(m); if (document.body.dataset.layout === 'b') matrixMeters(m); }
       conn(true, m['main-knob']);
     } else conn(false);
   } catch (e) { conn(false); }

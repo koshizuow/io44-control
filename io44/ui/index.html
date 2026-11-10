@@ -26,6 +26,12 @@
     </div>
     <p class="note" data-i18n="io_note"></p>
   </section>
+  <section class="card scopecard" id="scopeCard">
+    <div class="head"><h2 id="scopeTitle"></h2><div class="seg" id="scMic"></div><div class="legend" id="scLegend"></div></div>
+    <canvas id="scope"></canvas>
+    <p class="note" id="scHeadset" hidden></p>
+    <p class="note" id="scNote"></p>
+  </section>
   <section class="card fatcard" id="fatCard">
     <div class="head">
       <h2 data-i18n="fat"></h2>
@@ -49,6 +55,11 @@
     </div>
     <p class="note" data-i18n="unknown_note"></p>
   </section>
+  <section class="card matrixcard" id="matrixCard">
+    <div class="head"><h2 id="mxTitle"></h2></div>
+    <div class="matrix" id="matrix"></div>
+    <p class="note" id="mxNote"></p>
+  </section>
   <section class="card pw">
     <div id="pwPart">
     <div class="head"><h2 data-i18n="pw_title"></h2><span class="chip" id="pwState"></span></div>
@@ -71,5 +82,6 @@
 </defs></svg>
 <script src="app.js"></script>
 <script src="console.js"></script>
+<script src="scope.js"></script>
 </body>
 </html>

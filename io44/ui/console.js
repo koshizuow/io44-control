@@ -5,12 +5,12 @@
 // knobSvg): dragged up and down (Shift for fine), the wheel, the arrow keys, a double click for the default.
 
 Object.assign(I18N.zh, {
-  layout_a: 'A 控台', layout_b: 'B 經典', monitor_blend: '監聽比例', phones: '耳機', main: 'Main', play_side: '播放', in_side: '輸入',
+  layout_a: 'A 控台', monitor_blend: '監聽比例', phones: '耳機', main: 'Main', play_side: '播放', in_side: '輸入',
   both_side: '兩邊', mono_main: '單聲道 Main', mono_a: 'A', mono_b: 'B', dry_wet: 'Dry/Wet', rv_lcd_note: '左右箭頭換風格；旋鈕的中間是該風格的建議量',
   lamps_note: '點燈打開那一段的設定', dsp_off_lamps: 'DSP 關', custom_style: '自訂',
 });
 Object.assign(I18N.en, {
-  layout_a: 'A Console', layout_b: 'B Classic', monitor_blend: 'Blend', phones: 'Phones', main: 'Main', play_side: 'playback', in_side: 'inputs',
+  layout_a: 'A Console', monitor_blend: 'Blend', phones: 'Phones', main: 'Main', play_side: 'playback', in_side: 'inputs',
   both_side: 'both', mono_main: 'Mono Main', mono_a: 'A', mono_b: 'B', dry_wet: 'Dry/Wet', rv_lcd_note: 'The arrows change the style; the knob’s middle is its suggested amount',
   lamps_note: 'A lamp opens that part', dsp_off_lamps: 'DSP off', custom_style: 'Custom',
 });
