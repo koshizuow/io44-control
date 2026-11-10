@@ -308,10 +308,13 @@ def fat_writes(st: dict, ci: int, section: str = None) -> list:
 # not the io44's to change); the vocal ranges from mixing guides (lead 0.8-2 s; pre-delay room 5-20, plate 15-35,
 # hall 20-60 ms). (size, pre-delay s, low cut Hz, the send at the amount's middle, dB: worked out from the measured
 # responses for a wet level 11-17 dB under the dry, set by one A/B recording; to be checked by ear)
+# 2026-11-10, checked against Yamaha SPX2000's and Dragonfly Reverb's published presets: the plate made about 2 s
+# (size 0.72; theirs 1.8-2.44 s) and the low cuts brought to 100-200 Hz (theirs mostly none or 50-140 Hz; the smallest
+# space keeps 250); the plate's send lowered for its longer tail (estimated, not yet measured).
 REVERB_STYLES = {
-    "ambience": (0.0, 0.0, 400.0, -15.3), "room": (0.1, 0.0, 300.0, -14.3), "studio": (0.2, 0.0, 200.0, -14.5),
-    "club": (0.3, 0.010, 200.0, -13.2), "plate": (0.5, 0.025, 350.0, -12.8), "hall": (0.55, 0.035, 180.0, -12.4),
-    "theatre": (0.6, 0.030, 120.0, -13.4), "arena": (0.8, 0.070, 150.0, -12.5)}
+    "ambience": (0.0, 0.0, 250.0, -15.3), "room": (0.1, 0.0, 200.0, -14.3), "studio": (0.2, 0.0, 150.0, -14.5),
+    "club": (0.3, 0.010, 150.0, -13.2), "plate": (0.72, 0.025, 150.0, -13.8), "hall": (0.55, 0.035, 150.0, -12.4),
+    "theatre": (0.6, 0.030, 100.0, -13.4), "arena": (0.8, 0.070, 100.0, -12.5)}
 REVERB_KEYS = {"mix": (0.0, 1.0), "predelay": (0.0, 0.5), "size": (0.0, 1.0), "hp": (20.0, 1000.0), "amount": (0.0, 1.0)}
 
 

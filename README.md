@@ -59,8 +59,9 @@ then 0.8, then 0.9), decorrelated left and right; `size` sets the decay steeply 
 0.5 1.3 s, 0.75 2.1 s, 1 7 s) and the highs die sooner the bigger it is (4 kHz/1 kHz 0.75 at size 0, 0.3 at 1). Its
 algorithm is the io44's own; only these settings can be chosen.
 
-So the page offers styles instead, after TC-Helicon VoiceTone R1's (its manual describes each by length, tone,
-initial reflections and pre-delay; vocal ranges from mixing guides): Ambience, Room, Studio, Club, Plate, Hall,
+So the page offers styles instead, our own (TC-Helicon VoiceTone R1's manual table, which describes reverb styles
+by length, tone, initial reflections and pre-delay without numbers, was a reference; the numbers are from mixing
+guides' vocal ranges, checked against Yamaha SPX2000's and Dragonfly Reverb's published presets): Ambience, Room, Studio, Club, Plate, Hall,
 Theatre, Arena, each a size, a pre-delay and a low cut (`io44/settings.py`, REVERB_STYLES), and one Dry/Wet amount:
 how much of the mics goes to the reverb, the style's own level at its middle, nothing at 0. The reverb's own settings
 stay under Advanced (changing one makes it "custom"). What the io44 cannot do: its early reflections and its dark
