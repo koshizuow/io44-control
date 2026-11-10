@@ -39,7 +39,8 @@ const I18N = {
     f_freq: '頻率', f_on: '開', f_expander: 'Expander', f_threshold: 'Threshold', f_range: 'Range', f_attack: 'Attack', f_hold: 'Hold', f_release: 'Release',
     f_ratio: 'Ratio', f_knee: 'Knee', f_makeup: 'Makeup', f_ceiling: 'Ceiling', f_low: 'Low (200 Hz)', f_mid: 'Mid', f_mid_f: 'Mid frequency', f_mid_q: 'Mid Q', f_pres_q: 'Presence Q', f_pres: 'Presence', f_pres_f: 'Presence frequency', f_air: 'Air (10 kHz)',
     fat_note: '和 stream-mic 相同的處理鏈與範圍，由 io44 的 DSP 執行。點一段看細節，亮燈是開著；改一個值時只重送那一段。',
-    f_eq_note: '拖曳圓點：Low Cut 左右移動頻率，Mid、Presence 左右移動頻率也上下調增益，Low、Air 上下調增益（shelf 的點在一半增益處）。滑鼠停在 Mid 或 Presence 上轉滾輪調 Q。',
+    f_eq_note: '拖曳圓點：Mid、Presence 左右移動頻率也上下調增益，Low、Air 上下調增益（shelf 的點在一半增益處）。滑鼠停在 Mid 或 Presence 上轉滾輪調 Q。Low Cut 是處理鏈最前面的一段，不在這張圖裡。',
+    f_lc_note: '左右拖曳圓點調頻率（每八度 12 dB）。Low Cut 在處理鏈最前面，Gate 和 Compressor 之前。',
     f_bypassed: 'DSP 關：聽不到這些設定', f_dsp_on: 'DSP 開',
     f_voicefx: '聲音效果', fx_model: '效果', fx_low: '低頻', fx_width: '寬度', fx_mix: '混合', fx_ctype: '載波', fx_cfreq: '載波頻率',
     fx_vol: '音量', fx_c2: '第二載波', fx_c2freq: '第二載波頻率', fx_dist: '失真', fx_tune: '音高', fx_fb: '回授', fx_damp: '阻尼', fx_time: '時間',
@@ -81,7 +82,8 @@ const I18N = {
     f_freq: 'Frequency', f_on: 'On', f_expander: 'Expander', f_threshold: 'Threshold', f_range: 'Range', f_attack: 'Attack', f_hold: 'Hold', f_release: 'Release',
     f_ratio: 'Ratio', f_knee: 'Knee', f_makeup: 'Makeup', f_ceiling: 'Ceiling', f_low: 'Low (200 Hz)', f_mid: 'Mid', f_mid_f: 'Mid frequency', f_mid_q: 'Mid Q', f_pres_q: 'Presence Q', f_pres: 'Presence', f_pres_f: 'Presence frequency', f_air: 'Air (10 kHz)',
     fat_note: 'stream-mic’s processing chain and ranges, run by the io44’s DSP. Click a part for its details; a lit lamp is on. A change sends that part only.',
-    f_eq_note: 'Drag the points: the Low Cut left and right, Mid and Presence both ways (frequency and gain), Low and Air up and down (a shelf’s point sits at half its gain). The wheel over Mid or Presence sets its Q.',
+    f_eq_note: 'Drag the points: Mid and Presence both ways (frequency and gain), Low and Air up and down (a shelf’s point sits at half its gain). The wheel over Mid or Presence sets its Q. The Low Cut is the chain’s first stage, not in this curve.',
+    f_lc_note: 'Drag the point left or right for the frequency (12 dB per octave). The Low Cut is first in the chain, before the gate and the compressor.',
     f_bypassed: 'DSP off: none of this is heard', f_dsp_on: 'DSP on',
     f_voicefx: 'Voice FX', fx_model: 'Effect', fx_low: 'Lows', fx_width: 'Width', fx_mix: 'Mix', fx_ctype: 'Carrier', fx_cfreq: 'Carrier',
     fx_vol: 'Volume', fx_c2: 'Second carrier', fx_c2freq: 'Its frequency', fx_dist: 'Distortion', fx_tune: 'Tune', fx_fb: 'Feedback', fx_damp: 'Damping', fx_time: 'Time',
@@ -334,7 +336,7 @@ function fatDetailBuild() {
   let h = '<div class="dh"><b>' + t('f_' + sec) + '</b><span class="spacer"></span><label>' + t('f_on') + '<button class="sw" role="switch" id="fd_on"></button></label></div>';
   if (sec === 'eq') h += '<div class="seg" id="eqFam" style="margin-top:8px">' + EQ_FAMILIES.map(([f]) => '<button data-f="' + f + '">' + t('fam_' + f) + '</button>').join('') + '</div>' +
     '<div class="seg steps rvstyles" id="eqStyles" style="margin-top:6px"></div><p class="note" id="eqStyleNote"></p>';
-  if (sec === 'eq' || sec === 'lowcut') h += '<canvas id="fatEq"></canvas><p class="note">' + t('f_eq_note') + '</p>';
+  if (sec === 'eq' || sec === 'lowcut') h += '<canvas id="fatEq"></canvas><p class="note">' + t(sec === 'eq' ? 'f_eq_note' : 'f_lc_note') + '</p>';
   if (sec === 'voicefx') h += '<div class="lvl"><span>' + t('fx_model') + '</span><div class="seg steps" id="fd_model">' + Object.entries(VFX_NAMES).map(([m, n]) => '<button data-v="' + m + '">' + n + '</button>').join('') + '</div><output></output></div>';
   h += '<div class="pgrid">' + knobsOf(sec).map((it) => rowHtml(it, 'fd_' + it[0])).join('') + '</div>';
   if (sec === 'voicefx') h += '<p class="note">' + t('fx_note') + '</p>';
@@ -394,13 +396,16 @@ function biquadDb(kind, f0, q, gain, f) {
   const mag = (k) => Math.hypot(k[0] + k[1] * c1 + k[2] * c2, k[1] * s1 + k[2] * s2);
   return 20 * Math.log10(mag(b) / mag(a));
 }
+// the curve of the section open (FPICK): the low cut alone, or the EQ's four bands alone (they are separate stages)
 function fatResponse(f, x) {
-  let d = x.lowcut.on ? biquadDb('hp', x.lowcut.freq, Math.SQRT1_2, 0, f) : 0;
+  if (FPICK === 'lowcut') return x.lowcut.on ? biquadDb('hp', x.lowcut.freq, Math.SQRT1_2, 0, f) : 0;
+  let d = 0;
   if (x.eq.on) { for (const [k, f0, q, key] of EQB) d += biquadDb(k, key === 'pres' ? x.eq.pres_f ?? f0 : f0, key === 'pres' ? x.eq.pres_q ?? q : q, x.eq[key], f); d += biquadDb('bell', x.eq.mid_f ?? 400, x.eq.mid_q ?? 1.4, x.eq.mid ?? 0, f); }
   return d;
 }
 function fatPoints(x) {
-  return [{ id: 'lowcut', name: t('f_lowcut'), f: x.lowcut.freq, g: 0, on: !!x.lowcut.on }].concat(EQB.map(([k, f0, q, key]) => ({
+  if (FPICK === 'lowcut') return [{ id: 'lowcut', name: t('f_lowcut'), f: x.lowcut.freq, g: 0, on: !!x.lowcut.on }];
+  return [].concat(EQB.map(([k, f0, q, key]) => ({
     id: key, name: t('f_' + key), f: key === 'pres' ? x.eq.pres_f ?? f0 : f0, g: k === 'bell' ? x.eq[key] : x.eq[key] / 2, on: !!x.eq.on, half: k !== 'bell' })),
     [{ id: 'mid', name: t('f_mid'), f: x.eq.mid_f ?? 400, g: x.eq.mid ?? 0, on: !!x.eq.on }]);
 }
