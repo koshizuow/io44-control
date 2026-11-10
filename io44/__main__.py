@@ -71,7 +71,7 @@ def load() -> dict:
     except (OSError, ValueError):
         s = None
     if s and s.get("v") == settings.VERSION:
-        return s
+        return settings.fill_defaults(s)
     new = settings.default_state()
     new["fresh"] = True
     if s:

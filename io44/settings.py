@@ -123,7 +123,8 @@ def biquad(band: int, design) -> bytes:
 
 FAT_KEYS = {
     "lowcut": {"on": None, "freq": (40.0, 400.0)},
-    "eq": {"on": None, "low": (-6.0, 6.0), "pres": (-6.0, 6.0), "air": (-6.0, 6.0)},
+    "eq": {"on": None, "low": (-6.0, 6.0), "mid": (-6.0, 6.0), "mid_f": (200.0, 1000.0), "pres": (-6.0, 6.0),
+           "air": (-6.0, 6.0)},
     "gate": {"on": None, "expander": None, "threshold": (-80.0, -20.0), "range": (3.0, 80.0), "attack": (0.1, 50.0),
              "hold": (1.0, 300.0), "release": (40.0, 2000.0)},
     "comp": {"on": None, "threshold": (-40.0, -6.0), "ratio": (1.0, 8.0), "knee": (0.0, 12.0), "attack": (1.0, 40.0),
@@ -131,12 +132,14 @@ FAT_KEYS = {
     "limit": {"on": None, "ceiling": (-12.0, 0.0), "release": (20.0, 200.0)},
 }
 EQ_BANDS = (("lowshelf", 200.0, 0.7071, "low"), ("peak", 3000.0, 1.0, "pres"), ("highshelf", 10000.0, 0.7071, "air"))
+# the fourth biquad: a mid bell moved between 200 Hz and 1 kHz (the low mids' "mud" and "box"; stream-mic's, 2026-11-10)
+MID_Q = 1.4
 
 
 def fat_defaults() -> dict:
     """a mic's processing, all off (stream-mic's talk values ready for when a part is switched on)"""
     return {"lowcut": {"on": 0, "freq": 80.0},
-            "eq": {"on": 0, "low": 0.0, "pres": 1.5, "air": 1.0},
+            "eq": {"on": 0, "low": 0.0, "mid": 0.0, "mid_f": 400.0, "pres": 1.5, "air": 1.0},
             "gate": {"on": 0, "expander": 1, "threshold": -54.0, "range": 12.0, "attack": 3.0, "hold": 80.0,
                      "release": 200.0},
             "comp": {"on": 0, "threshold": -24.0, "ratio": 3.0, "knee": 6.0, "attack": 10.0, "release": 120.0,
@@ -164,14 +167,26 @@ def lowcut_design(ch: dict):
 
 
 def eq_designs(ch: dict) -> list:
-    """the four EQ biquads: low shelf 200 Hz, presence bell 3 kHz Q 1, air shelf 10 kHz, the fourth flat"""
+    """the four EQ biquads: low shelf 200 Hz, presence bell 3 kHz Q 1, air shelf 10 kHz, and the mid bell (Q 1.4, 200 Hz
+    to 1 kHz)"""
     e = ch["eq"]
     out = []
     for kind, f, q, key in EQ_BANDS:
         g = float(e[key]) if e["on"] else 0.0
         out.append((lambda fs, kind=kind, f=f, q=q, g=g: rbj(kind, f, g, q, fs)) if g else (lambda fs: PASS))
-    out.append(lambda fs: PASS)
+    g, f = (float(e.get("mid", 0.0)) if e["on"] else 0.0), float(e.get("mid_f", 400.0))
+    out.append((lambda fs: rbj("peak", f, g, MID_Q, fs)) if g else (lambda fs: PASS))
     return out
+
+
+def fill_defaults(st: dict) -> dict:
+    """settings saved before a processing key existed get its default (the mid band, 2026-11-10)"""
+    for k in MICS:
+        for sec, vals in fat_defaults().items():
+            cur = st["inputs"].get(k, {}).setdefault(sec, {})
+            for key, v in vals.items():
+                cur.setdefault(key, v)
+    return st
 
 
 # The times on the page are time constants, as in stream-mic. What the io44 makes of its fields was measured with Main
