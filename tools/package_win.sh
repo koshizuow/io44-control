@@ -1,7 +1,9 @@
 #!/bin/sh
-# Pack io44-control for Windows into dist/io44-control-DATE-windows.zip: the io44 package, Python's embeddable
-# distribution (py\, its path file reaching the folder above), libusb's DLL, a launcher and the instructions.
-# Run from the repo root on a machine that may download (the files are kept in $CACHE and checked against these hashes).
+# Pack io44-control for Windows into dist/io44-control-DATE-windows.zip: the app (io44-control.exe, the page in a
+# window with a tray icon, and WebView2Loader.dll), the io44 package, Python's embeddable distribution (py\, its path
+# file reaching the folder above), libusb's DLL and the instructions.
+# Run from the repo root on the build machine, after app/build/windows.sh (cargo and its registry are needed for the
+# Rust crates' licenses), on a machine that may download (the files are kept in $CACHE and checked against hashes).
 set -e
 CACHE=${CACHE:-$HOME/dl/io44win}
 PY=python-3.12.10-embed-amd64.zip
@@ -18,6 +20,8 @@ echo "$PY_SHA  $CACHE/$PY" | sha256sum -c -
 echo "$LU_SHA  $CACHE/$LU" | sha256sum -c -
 echo "$LC_SHA  $CACHE/$LC" | sha256sum -c -
 STAMP=$(date +%Y%m%d)
+APP=${APP:-app/target/x86_64-pc-windows-gnu/release}
+for f in "$APP/io44-control.exe" "$APP/WebView2Loader.dll"; do [ -f "$f" ] || { echo "missing $f: run app/build/windows.sh"; exit 1; }; done
 T=$(mktemp -d); D="$T/io44-control"
 mkdir -p "$D/py" "$T/lu"
 unzip -q "$CACHE/$PY" -d "$D/py"
@@ -27,13 +31,13 @@ printf 'python312.zip\n.\n..\n' > "$D/py/python312._pth"
 cp "$T/lu/VS2022/MS64/dll/libusb-1.0.dll" "$D/"
 mkdir -p "$D/licenses"
 cp LICENSE "$D/licenses/io44-control-LICENSE.txt"
+python3 tools/third_party.py app/Cargo.toml "$D/licenses/THIRD_PARTY_LICENSES.txt" x86_64-pc-windows-gnu
+cp "$APP/io44-control.exe" "$APP/WebView2Loader.dll" "$D/"
 cp "$CACHE/$LC" "$D/licenses/libusb-COPYING.txt"
 cp "$D/py/LICENSE.txt" "$D/licenses/python-LICENSE.txt" 2>/dev/null || true
-printf 'libusb 1.0.27 (LGPL-2.1), unmodified: https://github.com/libusb/libusb/releases/tag/v1.0.27\r\nPython 3.12.10 embeddable (PSF License): https://www.python.org/downloads/release/python-31210/\r\n' > "$D/licenses/README.txt"
+printf 'libusb 1.0.27 (LGPL-2.1), unmodified: https://github.com/libusb/libusb/releases/tag/v1.0.27\r\nPython 3.12.10 embeddable (PSF License): https://www.python.org/downloads/release/python-31210/\r\nio44-control.exe: GPL-3.0-or-later (io44-control-LICENSE.txt); the Rust crates built into it, WebView2Loader.dll among them: THIRD_PARTY_LICENSES.txt\r\n' > "$D/licenses/README.txt"
 cp -r io44 "$D/io44"
 find "$D/io44" -name __pycache__ -prune -exec rm -rf {} +
-# the launcher: pythonw (no console window) in the notification area
-printf '@echo off\r\nstart "" "%%~dp0py\\pythonw.exe" -m io44 tray\r\n' > "$D/io44-control.cmd"
 # the instructions: UTF-8 with a BOM and CRLF (Notepad on older Windows)
 printf '\357\273\277' > "$D/使用說明.txt"
 sed 's/$/\r/' tools/windows-readme.txt >> "$D/使用說明.txt"

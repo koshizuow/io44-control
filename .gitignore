@@ -2,3 +2,6 @@ __pycache__/
 *.pyc
 dist/
 /captures
+/app/target
+/app/gen
+/app/target-u2404

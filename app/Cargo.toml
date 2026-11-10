@@ -1,0 +1,22 @@
+[package]
+name = "io44-control"
+version = "0.1.0"
+license = "GPL-3.0-or-later"
+edition = "2021"
+description = "io44-control's page in a window (Tauri 2) with a tray icon; the controller itself is the Python package beside it"
+publish = false
+
+[build-dependencies]
+tauri-build = { version = "2", features = [] }
+
+[dependencies]
+tauri = { version = "2", features = ["tray-icon"] }
+tauri-plugin-single-instance = "2"
+serde_json = "1"
+sys-locale = "0.3"
+
+[profile.release]
+opt-level = "s"
+lto = true
+codegen-units = 1
+strip = true

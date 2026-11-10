@@ -132,14 +132,28 @@ If every mix goes silent while the meters of the inputs and playback still move,
 (Universal Control's service has sent one when restarted). `POST /api/repair` (the tray's "修復混音靜音") changes
 the sample rate away and back, which starts the io44's DSP over, and writes everything again.
 
+### The app: a window and a tray icon
+
+`app/` (Tauri 2, Rust) shows the page in its own window (WebView2 on Windows, WebKitGTK on Linux) with an icon in
+the system tray. The controller is still the Python package: the app starts `python -m io44 ui --no-browser` and
+stops it on Quit, or uses a server that is already running (the user service above) and leaves it be. It looks for
+the `io44` folder beside itself or above it (`IO44_HOME` to say where), and uses `py\pythonw.exe` there on Windows
+(the Windows package), `python3` on Linux. Closing the window keeps everything running in the tray; starting it a
+second time brings the window back; `--hidden` starts in the tray only (as at login). The tray's menu: open, write
+the settings now, repair (Linux), start with the computer (Windows: the Run key; Linux: `~/.config/autostart`), and
+on Windows stop or bring back Universal Control's service. If the server stops on its own the app starts it again.
+Its output goes to `app-server.log` beside the settings.
+
+    sh app/build/windows.sh     # app/target/x86_64-pc-windows-gnu/release/io44-control.exe + WebView2Loader.dll
+    sh app/build/linux.sh       # app/target-u2404/release/io44-control, built in an Ubuntu 24.04 image (podman)
+
 ### On Windows
 
-    py\pythonw.exe -m io44 tray             # in the notification area, next to the clock
-
-The same server and page, from the notification area: right-click for the page, writing the settings now, starting
-with Windows (a shortcut in your Startup folder), and stopping or bringing back Universal Control's service. Only one
-program can hold the io44's control interface: io44-control takes it once Universal Control's service is stopped
-(the menu stops it and sets it to Disabled, with an administrator prompt). The tray's log is beside the settings.
+The Windows package (`tools/package_win.sh`) is the app with the Python package, Python's embeddable distribution
+and libusb beside it: double-click `io44-control.exe`. Only one program can hold the io44's control interface:
+io44-control takes it once Universal Control's service is stopped (the tray's menu stops it and sets it to Disabled,
+with an administrator prompt). Without the app, `py\pythonw.exe -m io44 tray` gives the same menu from a tray icon
+alone (it opens the page in the browser).
 
 The control interface has Microsoft's WinUSB driver, so the code is the Linux one with `libusb-1.0.dll` beside the
 `io44` folder. The sample rate is set through the io44's USB audio driver (`PaeDSPUSBapi_x64.dll`, installed with
@@ -186,6 +200,7 @@ gains (slots 48-50), Main's volume (46) and the blend (47); the rest is not repo
 
 ## Layout
 
+- `app/` the window and the tray icon (Tauri 2), `app/build/` how it is built.
 - `io44/` the controller: `web.py` and `ui/` (the page, in stream-mic's style), `usb.py` (libusb through ctypes), `proto.py` (the messages), `device.py` (buses, sources,
   meters by name), `settings.py` (the settings and the messages they make), `pwconf.py` (the PipeWire configuration), `__main__.py` (the command line).
 - `tools/` how the protocol was found, on Windows with Universal Control installed: `ucctl.py` talks to
