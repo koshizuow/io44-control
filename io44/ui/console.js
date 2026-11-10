@@ -54,7 +54,7 @@ const KNOBS = {};
 function defKnob(id, k) { KNOBS[id] = Object.assign({ step: 1, size: 92 }, k); }
 function knobHtml(id) { const k = KNOBS[id]; return '<div class="knob" data-k="' + id + '" tabindex="0" role="slider" style="--k:' + k.size + 'px"><div class="kd"></div><span class="kn">' + k.name() + '</span><span class="kv num"></span></div>'; }
 const kVal = {};   // a knob's value while it is held (the polls do not move it then)
-const kShown = {};   // what each knob shows now: drawn again only when it changes (the meters poll 12 times a second)
+const kShown = {};   // (a typed value draws again: its key changes)   // what each knob shows now: drawn again only when it changes (the meters poll 12 times a second)
 function knobShow(id) {
   const el = document.querySelector('.knob[data-k="' + id + '"]'); if (!el) return;
   const k = KNOBS[id], v = kVal[id] !== undefined ? kVal[id] : k.get();
@@ -63,6 +63,7 @@ function knobShow(id) {
   kShown[id] = key;
   el.querySelector('.kd').innerHTML = knobSvg(v, k);
   const kv = el.querySelector('.kv'), known = v !== undefined && v !== null;
+  if (kv.dataset.editing === '1') return;
   kv.textContent = known ? k.fmt(v) : t('unknown');
   kv.classList.toggle('unknown', !known);
 }
@@ -81,6 +82,9 @@ function knobWire(id) {
     if (d) { e.preventDefault(); set((kVal[id] ?? k.get() ?? k.min) + d * k.step * (e.shiftKey ? 1 : 4)); clearTimeout(el._w); el._w = setTimeout(end, 300); }
   });
   el.addEventListener('dblclick', (e) => { if (k.def !== undefined && e.target.closest('svg')) { set(k.def); end(); } });
+  // the value under the knob can be typed (not the blend's two numbers)
+  if (id !== 'blend' && typeof numEdit === 'function') numEdit(el.querySelector('.kv'), { lo: k.min, hi: k.max, step: k.step, pan: id.startsWith('p_'),
+    get: () => k.get(), apply: (v) => { set(v); end(); } });
 }
 
 // ---------------------------------------------------------------- lit buttons

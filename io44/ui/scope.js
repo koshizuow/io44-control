@@ -133,6 +133,7 @@ function matrixBuild() {
       bar.addEventListener('pointermove', (e) => { if (!drag) return; const rr = bar.getBoundingClientRect(); set(posToDb(Math.max(0, Math.min(1, drag.p + (e.clientX - drag.x) * (e.shiftKey ? 0.25 : 1) / rr.width)))); });
       bar.addEventListener('pointerup', () => { drag = null; });
       bar.addEventListener('dblclick', () => set(0));
+      numEdit(cell.querySelector('.num'), { lo: -60, hi: 10, step: 0.5, get: () => mxValue(b, src), apply: (d) => set(d) });
       bar.addEventListener('wheel', (e) => { e.preventDefault(); const cur = mxValue(b, src) ?? 0; set((cur <= -100 ? -60 : cur) - Math.sign(e.deltaY) * (e.shiftKey ? 0.5 : 1)); }, { passive: false });
       bar.addEventListener('keydown', (e) => { const d = { ArrowUp: 1, ArrowRight: 1, ArrowDown: -1, ArrowLeft: -1 }[e.key]; if (d) { e.preventDefault(); const cur = mxValue(b, src) ?? 0; set((cur <= -100 ? -60 : cur) + d * (e.shiftKey ? 0.5 : 1)); } });
       // mute: off, and back to the value before (kept in this browser, the same as the console's), 0 dB if none
@@ -148,7 +149,7 @@ function mxCell(cell, d) {
   const known = d !== null, off = known && d <= -100;
   cell.querySelector('.mxbar b').style.width = (known ? dbToPos(d) * 100 : 0) + '%';
   cell.classList.toggle('off', off); cell.classList.toggle('unknown', !known);
-  cell.querySelector('.num').textContent = known ? fmtDb(d) : t('unknown');
+  if (cell.querySelector('.num').dataset.editing !== '1') cell.querySelector('.num').textContent = known ? fmtDb(d) : t('unknown');
   cell.querySelector('.mxmute').setAttribute('aria-pressed', String(off));
 }
 function matrixRender() {

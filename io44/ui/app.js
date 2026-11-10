@@ -176,14 +176,16 @@ function sw(id, label, small) { return '<div class="swrow"><span class="lab">' +
 // the monitor blend as the two sides' gains in Main (ucstate.blend_gains): inputs | playback
 const fmtBlend = (p) => { const g = (x) => (x <= 0 ? t('off') : (20 * Math.log10(Math.min(1, x))).toFixed(0)); return g(1 - p) + ' / ' + g(1 + p); };
 const fmtPan = (v) => (Math.abs(v) < 0.025 ? 'C' : (v < 0 ? 'L' : 'R') + Math.round(Math.abs(v) * 100));
-function wireRange(id, onMove, fmt) {
+// edit: how its value is typed (numedit.js rangeEdit's extras), false for none
+function wireRange(id, onMove, fmt, edit) {
   const el = $(id);
+  if (edit !== false && typeof rangeEdit === 'function') rangeEdit(id, edit);
   el.addEventListener('pointerdown', () => held.add(id));
   el.addEventListener('input', () => { held.add(id); el.classList.remove('unknown'); $(id + 'V').textContent = fmt(+el.value); $(id + 'V').classList.remove('unknown'); onMove(+el.value); });
   el.addEventListener('change', () => held.delete(id));
 }
 function showRange(id, v, fmt) {
-  if (held.has(id)) return;
+  if (held.has(id) || $(id + 'V').dataset.editing === '1') return;
   const known = v !== undefined && v !== null;
   if (known) $(id).value = v;
   $(id + 'V').textContent = known ? fmt(v) : t('unknown');
@@ -272,7 +274,18 @@ function wireRow(it, id, sec) {
   const el = $(id);
   if (it[2] === 'sw') el.onclick = () => F() && sendFat(sec, it[0], F()[sec][it[0]] ? 0 : 1);
   else if (it[2] === 'step') for (const b of el.children) b.onclick = () => F() && sendFat(sec, it[0], +b.dataset.v);
-  else wireRange(id, (p) => { if (F()) { sendFat(sec, it[0], round(fromPos(it, p))); if (sec === 'eq' || sec === 'lowcut') drawFatEq(); } }, (p) => it[5](fromPos(it, p)));
+  else wireRange(id, (p) => { if (F()) { sendFat(sec, it[0], round(fromPos(it, p))); if (sec === 'eq' || sec === 'lowcut') drawFatEq(); } }, (p) => it[5](fromPos(it, p)), fatEdit(it, sec));
+}
+// a processing value typed: in the units it is shown in (percent, ms), to its slider's steps (log ones: 1 Hz under
+// 1 kHz and 10 Hz above, 0.1 ms under 10 ms and 1 ms above, Q 0.05), sent as the setting
+function fatEdit(it, sec) {
+  const scale = it[5] === pct ? 100 : sec === 'voicefx' && it[0] === 'time' ? 1000 : 1;
+  const ms = it[5] === msv || scale === 1000;
+  const snap = it[2] !== 'log' ? null : it[0].endsWith('_q') ? (v) => Math.round(v * 20) / 20
+    : ms ? (v) => (v < 10 ? Math.round(v * 10) / 10 : Math.round(v)) : (v) => (v < 10 ? Math.round(v * 100) / 100 : v < 1000 ? Math.round(v) : Math.round(v / 10) * 10);
+  return { lo: it[3] * scale, hi: it[4] * scale, step: it[4] - it[3] <= 1 ? 0.01 * scale : 0.5, snap, unit: ms ? 'ms' : undefined,
+    get: () => (F() ? F()[sec][it[0]] * scale : undefined),
+    apply: (v) => { if (!F()) return; sendFat(sec, it[0], round(v / scale)); fatRender(); if (sec === 'eq' || sec === 'lowcut') drawFatEq(); } };
 }
 function showRow(it, id, v) {
   if (!$(id)) return;
@@ -437,7 +450,7 @@ function ioBuild() {
   fatBuild();
   for (const c of INPUTS) {
     wireRange('gain_' + c.key, (v) => sendSet('gain', c.key, v), (v) => v.toFixed(1) + ' dB');
-    wireRange('pan_' + c.key, (v) => sendSet('pan', c.key, v), fmtPan);
+    wireRange('pan_' + c.key, (v) => sendSet('pan', c.key, v), fmtPan, { pan: true });
     if (c.ch < 2) $('dsp_' + c.key).onclick = () => sendSet('dsp', c.key, !setting('dsp', c.key));  // Line In has no DSP
     if (c.ch < 2) $('rec_' + c.key).onclick = () => sendSet('record_processed', c.key, !setting('record_processed', c.key));
     // 48V: asked first every time it goes on (a ribbon or tube mic can be damaged)
@@ -446,7 +459,7 @@ function ioBuild() {
   $('outputs').innerHTML = lvl('mainVol', t('main_vol'), 0, 100, 1) + lvl('blend', t('blend'), -1, 1, 0.02) + lvl('phVol', t('phones_vol'), 0, 100, 1) + sw('phMute', t('phones_mute')) +
     BUSES.map((b) => sw('mono_' + b.id, t('mono'), ' ' + t(b.key))).join('');
   wireRange('mainVol', (v) => sendSet('main-volume', '', v), (v) => Math.round(v) + '%');
-  wireRange('blend', (v) => sendSet('blend', '', v), fmtBlend);
+  wireRange('blend', (v) => sendSet('blend', '', v), fmtBlend, false);
   $('blend').parentElement.title = t('blend_tip');
   wireRange('phVol', (v) => sendSet('phones-volume', '', v), (v) => Math.round(v) + '%');
   $('phMute').onclick = () => sendSet('phones-mute', '', !setting('phones-mute'));
@@ -463,7 +476,7 @@ function ioBuild() {
   $('rvAmt').addEventListener('change', () => rvSet({}));
   const rv = (k, scale) => (v) => sendSet('reverb', '', { [k]: v * scale });
   wireRange('rvMix', rv('mix', 0.01), (v) => Math.round(v) + '%');
-  wireRange('rvPre', rv('predelay', 0.001), (v) => Math.round(v) + ' ms');
+  wireRange('rvPre', rv('predelay', 0.001), (v) => Math.round(v) + ' ms', { unit: 'ms' });
   wireRange('rvSize', rv('size', 0.01), (v) => Math.round(v) + '%');
   wireRange('rvHp', rv('hp', 1), (v) => Math.round(v) + ' Hz');
 }
@@ -548,6 +561,7 @@ function wire(el, src) {
   });
   f.addEventListener('pointerup', () => { drag = null; });
   f.addEventListener('dblclick', () => set(0));
+  if (typeof numEdit === 'function') numEdit(el.querySelector('.val'), { lo: -60, hi: 10, step: 0.5, get: () => value(src), apply: (d) => set(d) });
   f.addEventListener('wheel', (e) => { e.preventDefault(); const cur = value(src) ?? 0; set((cur <= -100 ? -60 : cur) - Math.sign(e.deltaY) * (e.shiftKey ? 0.5 : 1)); }, { passive: false });
   f.addEventListener('keydown', (e) => {
     const d = { ArrowUp: 1, ArrowRight: 1, ArrowDown: -1, ArrowLeft: -1 }[e.key];
@@ -568,8 +582,7 @@ function show(el, src, d) {
   f.querySelector('.fill').style.height = (known ? p * 244 : 0) + 'px';
   f.setAttribute('aria-valuenow', known ? d : '');
   const v = el.querySelector('.val');
-  v.textContent = known ? fmtDb(d) : t('unknown');
-  v.classList.toggle('unknown', !known);
+  if (v.dataset.editing !== '1') { v.textContent = known ? fmtDb(d) : t('unknown'); v.classList.toggle('unknown', !known); }
   const off = known && d <= -100;
   el.classList.toggle('off', off);
   const m = el.querySelector('.mute');
