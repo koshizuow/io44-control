@@ -33,9 +33,9 @@ const I18N = {
     fat: '處理',
     f_lowcut: 'Low Cut', f_gate: 'Gate', f_comp: 'Compressor', f_eq: 'EQ', f_limit: 'Limiter',
     f_freq: '頻率', f_on: '開', f_expander: 'Expander', f_threshold: 'Threshold', f_range: 'Range', f_attack: 'Attack', f_hold: 'Hold', f_release: 'Release',
-    f_ratio: 'Ratio', f_knee: 'Knee', f_makeup: 'Makeup', f_ceiling: 'Ceiling', f_low: 'Low (200 Hz)', f_mid: 'Mid', f_mid_f: 'Mid frequency', f_pres: 'Presence (3 kHz)', f_air: 'Air (10 kHz)',
+    f_ratio: 'Ratio', f_knee: 'Knee', f_makeup: 'Makeup', f_ceiling: 'Ceiling', f_low: 'Low (200 Hz)', f_mid: 'Mid', f_mid_f: 'Mid frequency', f_mid_q: 'Mid Q', f_pres_q: 'Presence Q', f_pres: 'Presence (3 kHz)', f_air: 'Air (10 kHz)',
     fat_note: '和 stream-mic 相同的處理鏈與範圍，由 io44 的 DSP 執行。點一段看細節，亮燈是開著；改一個值時只重送那一段。',
-    f_eq_note: '拖曳圓點：Low Cut 左右移動頻率，Mid 左右移動頻率也上下調增益，其他三段上下調增益（shelf 的點在一半增益處）。',
+    f_eq_note: '拖曳圓點：Low Cut 左右移動頻率，Mid 左右移動頻率也上下調增益，其他三段上下調增益（shelf 的點在一半增益處）。滑鼠停在 Mid 或 Presence 上轉滾輪調 Q。',
     f_bypassed: 'DSP 關：聽不到這些設定', f_dsp_on: 'DSP 開',
     f_voicefx: '聲音效果', fx_model: '效果', fx_low: '低頻', fx_width: '寬度', fx_mix: '混合', fx_ctype: '載波', fx_cfreq: '載波頻率',
     fx_vol: '音量', fx_c2: '第二載波', fx_c2freq: '第二載波頻率', fx_dist: '失真', fx_tune: '音高', fx_fb: '回授', fx_damp: '阻尼', fx_time: '時間',
@@ -71,9 +71,9 @@ const I18N = {
     fat: 'Processing',
     f_lowcut: 'Low Cut', f_gate: 'Gate', f_comp: 'Compressor', f_eq: 'EQ', f_limit: 'Limiter',
     f_freq: 'Frequency', f_on: 'On', f_expander: 'Expander', f_threshold: 'Threshold', f_range: 'Range', f_attack: 'Attack', f_hold: 'Hold', f_release: 'Release',
-    f_ratio: 'Ratio', f_knee: 'Knee', f_makeup: 'Makeup', f_ceiling: 'Ceiling', f_low: 'Low (200 Hz)', f_mid: 'Mid', f_mid_f: 'Mid frequency', f_pres: 'Presence (3 kHz)', f_air: 'Air (10 kHz)',
+    f_ratio: 'Ratio', f_knee: 'Knee', f_makeup: 'Makeup', f_ceiling: 'Ceiling', f_low: 'Low (200 Hz)', f_mid: 'Mid', f_mid_f: 'Mid frequency', f_mid_q: 'Mid Q', f_pres_q: 'Presence Q', f_pres: 'Presence (3 kHz)', f_air: 'Air (10 kHz)',
     fat_note: 'stream-mic’s processing chain and ranges, run by the io44’s DSP. Click a part for its details; a lit lamp is on. A change sends that part only.',
-    f_eq_note: 'Drag the points: the Low Cut left and right, Mid both ways (its frequency and its gain), the three others up and down (a shelf’s point sits at half its gain).',
+    f_eq_note: 'Drag the points: the Low Cut left and right, Mid both ways (its frequency and its gain), the three others up and down (a shelf’s point sits at half its gain). The wheel over Mid or Presence sets its Q.',
     f_bypassed: 'DSP off: none of this is heard', f_dsp_on: 'DSP on',
     f_voicefx: 'Voice FX', fx_model: 'Effect', fx_low: 'Lows', fx_width: 'Width', fx_mix: 'Mix', fx_ctype: 'Carrier', fx_cfreq: 'Carrier',
     fx_vol: 'Volume', fx_c2: 'Second carrier', fx_c2freq: 'Its frequency', fx_dist: 'Distortion', fx_tune: 'Tune', fx_fb: 'Feedback', fx_damp: 'Damping', fx_time: 'Time',
@@ -209,7 +209,7 @@ const hz = (v) => (v >= 1000 ? (v / 1000).toFixed(v >= 10000 ? 1 : 2) + ' kHz' :
 const dbv = (v) => (v > 0.05 ? '+' : '') + (+v).toFixed(1) + ' dB';
 const FAT = {
   lowcut: [['freq', 'f_freq', 'log', 40, 400, hz]],
-  eq: [['low', 'f_low', 'lin', -6, 6, dbv], ['mid', 'f_mid', 'lin', -6, 6, dbv], ['mid_f', 'f_mid_f', 'log', 200, 1000, hz], ['pres', 'f_pres', 'lin', -6, 6, dbv], ['air', 'f_air', 'lin', -6, 6, dbv]],
+  eq: [['low', 'f_low', 'lin', -6, 6, dbv], ['mid', 'f_mid', 'lin', -6, 6, dbv], ['mid_f', 'f_mid_f', 'log', 200, 1000, hz], ['mid_q', 'f_mid_q', 'log', 0.5, 4, (v) => (+v).toFixed(2)], ['pres', 'f_pres', 'lin', -6, 6, dbv], ['pres_q', 'f_pres_q', 'log', 0.5, 4, (v) => (+v).toFixed(2)], ['air', 'f_air', 'lin', -6, 6, dbv]],
   gate: [['threshold', 'f_threshold', 'lin', -80, -20, dbv], ['range', 'f_range', 'lin', 3, 80, (v) => Math.round(v) + ' dB'],
     ['attack', 'f_attack', 'log', 0.1, 50, msv], ['hold', 'f_hold', 'lin', 1, 300, msv], ['release', 'f_release', 'log', 40, 2000, msv],
     ['expander', 'f_expander', 'sw']],
@@ -354,7 +354,7 @@ function biquadDb(kind, f0, q, gain, f) {
 }
 function fatResponse(f, x) {
   let d = x.lowcut.on ? biquadDb('hp', x.lowcut.freq, Math.SQRT1_2, 0, f) : 0;
-  if (x.eq.on) { for (const [k, f0, q, key] of EQB) d += biquadDb(k, f0, q, x.eq[key], f); d += biquadDb('bell', x.eq.mid_f ?? 400, 1.4, x.eq.mid ?? 0, f); }
+  if (x.eq.on) { for (const [k, f0, q, key] of EQB) d += biquadDb(k, f0, key === 'pres' ? x.eq.pres_q ?? q : q, x.eq[key], f); d += biquadDb('bell', x.eq.mid_f ?? 400, x.eq.mid_q ?? 1.4, x.eq.mid ?? 0, f); }
   return d;
 }
 function fatPoints(x) {
@@ -415,6 +415,15 @@ function eqDrag(c) {
     drawFatEq(); fatRender();
   });
   c.addEventListener('pointerup', () => { eqHold = null; });
+  // the wheel over Mid or Presence: its Q (up narrower), about 10% a notch
+  c.addEventListener('wheel', (e) => {
+    const [x, y] = pos(e), p = near(x, y);
+    if (!p || (p.id !== 'mid' && p.id !== 'pres')) return;
+    e.preventDefault();
+    const k = p.id + '_q', cur = F().eq[k] ?? (p.id === 'mid' ? 1.4 : 1);
+    sendFat('eq', k, Math.max(0.5, Math.min(4, Math.round(cur * (e.deltaY < 0 ? 1.1 : 1 / 1.1) * 20) / 20)));
+    drawFatEq(); fatRender();
+  }, { passive: false });
   new ResizeObserver(() => drawFatEq()).observe(c);
 }
 
