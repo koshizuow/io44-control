@@ -171,8 +171,9 @@ function consoleRender() {
   for (const b of BUSES) hbShow('c_mono_' + b.id, setting('mono', bk[b.id]));
   hbShow('c_phMute', setting('phones-mute'));
   const r = setting('reverb');
-  $('rvName').textContent = !r ? t('unknown') : r.style === 'custom' || !RV_STYLES.includes(r.style) ? t('custom_style') : t('rv_' + r.style);
-  $('rvInfo').textContent = r ? Math.round(r.size * 100) + '% · ' + Math.round(r.predelay * 1000) + ' ms · ' + Math.round(r.hp) + ' Hz' : '';
+  $('rvName').textContent = !r ? t('unknown') : r.style === 'custom' || !RV_STYLES.includes(r.style) ? t('custom_style') : rvName(r.style);
+  const fam = r && rvFamOf(r.style);
+  $('rvInfo').textContent = r ? (fam && fam !== 'ours' ? t('fam_' + fam) + ' · ' : '') + Math.round(r.size * 100) + '% · ' + Math.round(r.predelay * 1000) + ' ms · ' + Math.round(r.hp) + ' Hz' : '';
 }
 
 function setLayout(v, quiet) {

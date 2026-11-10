@@ -124,7 +124,7 @@ def biquad(band: int, design) -> bytes:
 FAT_KEYS = {
     "lowcut": {"on": None, "freq": (40.0, 400.0)},
     "eq": {"on": None, "low": (-6.0, 6.0), "mid": (-6.0, 6.0), "mid_f": (200.0, 1000.0), "mid_q": (0.5, 4.0),
-           "pres": (-6.0, 6.0), "pres_q": (0.5, 4.0), "air": (-6.0, 6.0)},
+           "pres": (-6.0, 6.0), "pres_f": (2000.0, 6000.0), "pres_q": (0.5, 4.0), "air": (-6.0, 6.0)},
     "gate": {"on": None, "expander": None, "threshold": (-80.0, -20.0), "range": (3.0, 80.0), "attack": (0.1, 50.0),
              "hold": (1.0, 300.0), "release": (40.0, 2000.0)},
     "comp": {"on": None, "threshold": (-40.0, -6.0), "ratio": (1.0, 8.0), "knee": (0.0, 12.0), "attack": (1.0, 40.0),
@@ -139,7 +139,8 @@ MID_Q = 1.4
 def fat_defaults() -> dict:
     """a mic's processing, all off (stream-mic's talk values ready for when a part is switched on)"""
     return {"lowcut": {"on": 0, "freq": 80.0},
-            "eq": {"on": 0, "low": 0.0, "mid": 0.0, "mid_f": 400.0, "mid_q": 1.4, "pres": 1.5, "pres_q": 1.0, "air": 1.0},
+            "eq": {"on": 0, "style": "", "low": 0.0, "mid": 0.0, "mid_f": 400.0, "mid_q": 1.4, "pres": 1.5, "pres_f": 3000.0,
+                   "pres_q": 1.0, "air": 1.0},
             "gate": {"on": 0, "expander": 1, "threshold": -54.0, "range": 12.0, "attack": 3.0, "hold": 80.0,
                      "release": 200.0},
             "comp": {"on": 0, "threshold": -24.0, "ratio": 3.0, "knee": 6.0, "attack": 10.0, "release": 120.0,
@@ -173,12 +174,36 @@ def eq_designs(ch: dict) -> list:
     out = []
     for kind, f, q, key in EQ_BANDS:
         g = float(e[key]) if e["on"] else 0.0
-        q = float(e.get(key + "_q", q))  # the presence bell's Q is a setting (2026-11-10); the shelves' are fixed
+        q = float(e.get(key + "_q", q))  # the presence bell's Q and centre are settings (2026-11-10); the shelves' fixed
+        f = float(e.get(key + "_f", f))
         out.append((lambda fs, kind=kind, f=f, q=q, g=g: rbj(kind, f, g, q, fs)) if g else (lambda fs: PASS))
     g, f = (float(e.get("mid", 0.0)) if e["on"] else 0.0), float(e.get("mid_f", 400.0))
     mq = float(e.get("mid_q", MID_Q))
     out.append((lambda fs: rbj("peak", f, g, mq, fs)) if g else (lambda fs: PASS))
     return out
+
+
+# EQ styles (stream-mic's, crates/chain/src/preset.rs EQ_STYLES, less its phone: the io44 has no high cut): ours, and
+# "f", Focusrite Vocaster's four Enhance presets as its user guide publishes them (v1.3, "Enhance Presets' Parameters":
+# a high pass at 80 Hz and three bells); their bells go into our bands (100-135 Hz the Low shelf, 450 Hz-1 kHz the
+# Mid, 2-6 kHz the Presence, 7-11 kHz the Air shelf). (low cut, low, mid, mid_f, mid_q, pres, pres_f, pres_q, air)
+EQ_STYLES = {
+    "natural": (80.0, 0.0, 0.0, 400.0, 1.4, 0.0, 3000.0, 1.0, 0.0),
+    "demud": (100.0, 0.0, -3.0, 300.0, 1.4, 1.5, 3000.0, 1.0, 1.0),
+    "f-clean": (80.0, -2.0, 0.0, 400.0, 1.4, 2.0, 2000.0, 0.6, 2.0),
+    "f-warm": (80.0, -1.0, 2.5, 450.0, 0.7, -1.0, 2500.0, 0.5, 0.0),
+    "f-bright": (80.0, 0.0, -2.0, 500.0, 0.6, 3.0, 2000.0, 0.6, 3.0),
+    "f-radio": (80.0, 2.5, -1.5, 1000.0, 1.5, 1.5, 6000.0, 1.15, 0.0),
+}
+
+
+def eq_style(ch: dict, name: str):
+    """a mic's EQ and low cut set to a style (both switched on)"""
+    if name not in EQ_STYLES:
+        raise ValueError(f"no EQ style {name}")
+    lc, low, mid, mf, mq, pres, pf, pq, air = EQ_STYLES[name]
+    ch["lowcut"].update(on=1, freq=lc)
+    ch["eq"].update(on=1, style=name, low=low, mid=mid, mid_f=mf, mid_q=mq, pres=pres, pres_f=pf, pres_q=pq, air=air)
 
 
 def fill_defaults(st: dict) -> dict:
@@ -314,7 +339,26 @@ def fat_writes(st: dict, ci: int, section: str = None) -> list:
 REVERB_STYLES = {
     "ambience": (0.0, 0.0, 250.0, -15.3), "room": (0.1, 0.0, 200.0, -14.3), "studio": (0.2, 0.0, 150.0, -14.5),
     "club": (0.3, 0.010, 150.0, -13.2), "plate": (0.72, 0.025, 150.0, -13.8), "hall": (0.55, 0.035, 150.0, -12.4),
-    "theatre": (0.6, 0.030, 100.0, -13.4), "arena": (0.8, 0.070, 100.0, -12.5)}
+    "theatre": (0.6, 0.030, 100.0, -13.4), "arena": (0.8, 0.070, 100.0, -12.5),
+    # "y" Yamaha SPX2000's and "d" Dragonfly Reverb's published presets, by stream-mic's tools/verb_styles.py (its
+    # notes say how): the size from the decay by the measured table, the pre-delay so the tail starts when theirs does
+    # less the io44's own 24 ms, the low cut their HPF (Thru: 20 Hz); the send estimated from the size (-15 + 3.5 x
+    # size, not measured). What the io44 cannot do: their brightness, early reflections and high cut; nothing under
+    # 0.66 s (so Dragonfly's small and medium vocal rooms, 0.3 and 0.6 s, are left out: they would be one style)
+"y-vocal-plate": (0.78, 0.0327, 80.0, -12.3),
+    "y-vocal-plate-x": (0.79, 0.0056, 140.0, -12.2),
+    "y-vocal": (0.79, 0.0006, 90.0, -12.2),
+    "y-vocal-chamber": (0.71, 0.0254, 20.0, -12.5),
+    "y-presence": (0.56, 0.0226, 20.0, -13.0),
+    "y-small-room": (0.03, 0.0000, 20.0, -14.9),
+    "y-medium-hall": (0.72, 0.0000, 20.0, -12.5),
+    "y-echo-room": (0.33, 0.0000, 20.0, -13.8),
+    "d-large-vocal-room": (0.33, 0.0000, 20.0, -13.8),
+    "d-vocal-studio": (0.16, 0.0000, 20.0, -14.4),
+    "d-small-vocal-hall": (0.46, 0.0000, 20.0, -13.4),
+    "d-medium-vocal-hall": (0.51, 0.0000, 20.0, -13.2),
+    "d-large-vocal-hall": (0.78, 0.0000, 20.0, -12.3),
+    "d-clear-plate": (0.0, 0.0000, 100.0, -15.0),}
 REVERB_KEYS = {"mix": (0.0, 1.0), "predelay": (0.0, 0.5), "size": (0.0, 1.0), "hp": (20.0, 1000.0), "amount": (0.0, 1.0)}
 
 

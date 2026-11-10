@@ -149,8 +149,16 @@ def apply_fat(d: Io44, inp: str, section: str, key: str, value):
         d.write_all(w if key == "model" else [x for x in w if x[2] != "VoFx"])
         save(s)
         return v
+    if section == "eq" and key == "style":
+        settings.eq_style(s["inputs"][k], str(value))
+        d.write_all(settings.fat_writes(s, settings.INPUTS.index(k), "lowcut") + settings.fat_writes(s, settings.INPUTS.index(k), "eq"))
+        save(s)
+        return str(value)
     v = settings.fat_value(section, key, value)
     s["inputs"][k][section][key] = v
+    # a value changed by hand: the EQ is no style's any more
+    if (section == "eq" and key != "on") or (section == "lowcut" and key == "freq"):
+        s["inputs"][k]["eq"]["style"] = ""
     d.write_all(settings.fat_writes(s, settings.INPUTS.index(k), section))
     save(s)
     return v

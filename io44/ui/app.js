@@ -21,6 +21,10 @@ const I18N = {
     rv_mix: '乾濕比', rv_pre: '預延遲', rv_size: '大小', rv_hp: '低切', rv_amount: 'Dry/Wet', rv_adv: '進階：reverb 本身的設定',
     rv_ambience: 'Ambience', rv_room: 'Room', rv_studio: 'Studio', rv_club: 'Club', rv_plate: 'Plate', rv_hall: 'Hall', rv_theatre: 'Theatre', rv_arena: 'Arena',
     rv_note: '八種風格，用 io44 reverb 能調的長度、預延遲、低切做出來。量在 50% 是該風格的建議量；0 是不送。混音裡的 Reverb 推桿決定各混音聽到多少。',
+    rv_note_pub: '照這一家公開的預設數值，換算成 io44 reverb 能調的長度、預延遲、低切；亮暗、初期反射、高切做不到，所以接近但不一樣。量在 50% 是該風格的建議量。',
+    fam_ours: '我們的', fam_y: 'Y 家', fam_d: 'D 家', fam_f: 'F 家', eq_natural: '自然', eq_demud: '去悶', eq_custom: '目前是自訂的值。',
+    eq_style_note: '選一個風格當起點（會打開 EQ 和低切）；改了數值就是自訂。',
+    eq_style_pub: '這一家公開的預設數值：中頻、Presence 照原本的頻率和 Q；最低、最高那段換成我們的 Low、Air 架形，所以接近但不完全一樣。',
     rv_custom: '自訂：進階設定改過，不是哪一種風格了。按一種風格回到它的設定。',
     io_note: '增益和 Main 音量是 io44 回報的實際值；其他項目 io44 不回報，顯示的是這台電腦保存的設定（耳機音量設定過才會知道）。DSP 關掉時麥克風不經過處理。',
     rate_title: '取樣率', rate_auto: '跟系統', rate_running: '目前', rate_idle: '閒置中',
@@ -33,9 +37,9 @@ const I18N = {
     fat: '處理',
     f_lowcut: 'Low Cut', f_gate: 'Gate', f_comp: 'Compressor', f_eq: 'EQ', f_limit: 'Limiter',
     f_freq: '頻率', f_on: '開', f_expander: 'Expander', f_threshold: 'Threshold', f_range: 'Range', f_attack: 'Attack', f_hold: 'Hold', f_release: 'Release',
-    f_ratio: 'Ratio', f_knee: 'Knee', f_makeup: 'Makeup', f_ceiling: 'Ceiling', f_low: 'Low (200 Hz)', f_mid: 'Mid', f_mid_f: 'Mid frequency', f_mid_q: 'Mid Q', f_pres_q: 'Presence Q', f_pres: 'Presence (3 kHz)', f_air: 'Air (10 kHz)',
+    f_ratio: 'Ratio', f_knee: 'Knee', f_makeup: 'Makeup', f_ceiling: 'Ceiling', f_low: 'Low (200 Hz)', f_mid: 'Mid', f_mid_f: 'Mid frequency', f_mid_q: 'Mid Q', f_pres_q: 'Presence Q', f_pres: 'Presence', f_pres_f: 'Presence frequency', f_air: 'Air (10 kHz)',
     fat_note: '和 stream-mic 相同的處理鏈與範圍，由 io44 的 DSP 執行。點一段看細節，亮燈是開著；改一個值時只重送那一段。',
-    f_eq_note: '拖曳圓點：Low Cut 左右移動頻率，Mid 左右移動頻率也上下調增益，其他三段上下調增益（shelf 的點在一半增益處）。滑鼠停在 Mid 或 Presence 上轉滾輪調 Q。',
+    f_eq_note: '拖曳圓點：Low Cut 左右移動頻率，Mid、Presence 左右移動頻率也上下調增益，Low、Air 上下調增益（shelf 的點在一半增益處）。滑鼠停在 Mid 或 Presence 上轉滾輪調 Q。',
     f_bypassed: 'DSP 關：聽不到這些設定', f_dsp_on: 'DSP 開',
     f_voicefx: '聲音效果', fx_model: '效果', fx_low: '低頻', fx_width: '寬度', fx_mix: '混合', fx_ctype: '載波', fx_cfreq: '載波頻率',
     fx_vol: '音量', fx_c2: '第二載波', fx_c2freq: '第二載波頻率', fx_dist: '失真', fx_tune: '音高', fx_fb: '回授', fx_damp: '阻尼', fx_time: '時間',
@@ -59,6 +63,10 @@ const I18N = {
     rv_mix: 'Wet/dry', rv_pre: 'Pre-delay', rv_size: 'Size', rv_hp: 'Low cut', rv_amount: 'Amount (dry/wet)', rv_adv: 'Advanced: the reverb’s own settings',
     rv_ambience: 'Ambience', rv_room: 'Room', rv_studio: 'Studio', rv_club: 'Club', rv_plate: 'Plate', rv_hall: 'Hall', rv_theatre: 'Theatre', rv_arena: 'Arena',
     rv_note: 'Eight styles, made from what the io44’s reverb lets one set: length, pre-delay, low cut. At 50% the amount is the style’s own; 0 sends nothing. The Reverb fader in each mix sets how much that mix gets.',
+    rv_note_pub: 'This maker’s published preset values, turned into what the io44’s reverb can set (length, pre-delay, low cut): its brightness, early reflections and high cut cannot be had, so close, not the same. At 50% the amount is the style’s own.',
+    fam_ours: 'Ours', fam_y: 'Y', fam_d: 'D', fam_f: 'F', eq_natural: 'Natural', eq_demud: 'De-mud', eq_custom: 'Custom values. ',
+    eq_style_note: 'A style to start from (it switches the EQ and the low cut on); changing a value makes it custom.',
+    eq_style_pub: 'This maker’s published preset values: the mid and presence bells at their own frequency and Q, their lowest and highest on our Low and Air shelves, so near, not the same.',
     rv_custom: 'Custom: the advanced settings were changed. Pick a style to go back to its settings.',
     io_note: 'Gain and Main volume are what the io44 reports; it does not report the rest, which shows the settings this computer keeps (the headphones are known once set here). With DSP off the mic is not processed.',
     rate_title: 'Sample rate', rate_auto: 'System', rate_running: 'Now', rate_idle: 'idle',
@@ -71,9 +79,9 @@ const I18N = {
     fat: 'Processing',
     f_lowcut: 'Low Cut', f_gate: 'Gate', f_comp: 'Compressor', f_eq: 'EQ', f_limit: 'Limiter',
     f_freq: 'Frequency', f_on: 'On', f_expander: 'Expander', f_threshold: 'Threshold', f_range: 'Range', f_attack: 'Attack', f_hold: 'Hold', f_release: 'Release',
-    f_ratio: 'Ratio', f_knee: 'Knee', f_makeup: 'Makeup', f_ceiling: 'Ceiling', f_low: 'Low (200 Hz)', f_mid: 'Mid', f_mid_f: 'Mid frequency', f_mid_q: 'Mid Q', f_pres_q: 'Presence Q', f_pres: 'Presence (3 kHz)', f_air: 'Air (10 kHz)',
+    f_ratio: 'Ratio', f_knee: 'Knee', f_makeup: 'Makeup', f_ceiling: 'Ceiling', f_low: 'Low (200 Hz)', f_mid: 'Mid', f_mid_f: 'Mid frequency', f_mid_q: 'Mid Q', f_pres_q: 'Presence Q', f_pres: 'Presence', f_pres_f: 'Presence frequency', f_air: 'Air (10 kHz)',
     fat_note: 'stream-mic’s processing chain and ranges, run by the io44’s DSP. Click a part for its details; a lit lamp is on. A change sends that part only.',
-    f_eq_note: 'Drag the points: the Low Cut left and right, Mid both ways (its frequency and its gain), the three others up and down (a shelf’s point sits at half its gain). The wheel over Mid or Presence sets its Q.',
+    f_eq_note: 'Drag the points: the Low Cut left and right, Mid and Presence both ways (frequency and gain), Low and Air up and down (a shelf’s point sits at half its gain). The wheel over Mid or Presence sets its Q.',
     f_bypassed: 'DSP off: none of this is heard', f_dsp_on: 'DSP on',
     f_voicefx: 'Voice FX', fx_model: 'Effect', fx_low: 'Lows', fx_width: 'Width', fx_mix: 'Mix', fx_ctype: 'Carrier', fx_cfreq: 'Carrier',
     fx_vol: 'Volume', fx_c2: 'Second carrier', fx_c2freq: 'Its frequency', fx_dist: 'Distortion', fx_tune: 'Tune', fx_fb: 'Feedback', fx_damp: 'Damping', fx_time: 'Time',
@@ -211,7 +219,7 @@ const hz = (v) => (v >= 1000 ? (v / 1000).toFixed(v >= 10000 ? 1 : 2) + ' kHz' :
 const dbv = (v) => (v > 0.05 ? '+' : '') + (+v).toFixed(1) + ' dB';
 const FAT = {
   lowcut: [['freq', 'f_freq', 'log', 40, 400, hz]],
-  eq: [['low', 'f_low', 'lin', -6, 6, dbv], ['mid', 'f_mid', 'lin', -6, 6, dbv], ['mid_f', 'f_mid_f', 'log', 200, 1000, hz], ['mid_q', 'f_mid_q', 'log', 0.5, 4, (v) => (+v).toFixed(2)], ['pres', 'f_pres', 'lin', -6, 6, dbv], ['pres_q', 'f_pres_q', 'log', 0.5, 4, (v) => (+v).toFixed(2)], ['air', 'f_air', 'lin', -6, 6, dbv]],
+  eq: [['low', 'f_low', 'lin', -6, 6, dbv], ['mid', 'f_mid', 'lin', -6, 6, dbv], ['mid_f', 'f_mid_f', 'log', 200, 1000, hz], ['mid_q', 'f_mid_q', 'log', 0.5, 4, (v) => (+v).toFixed(2)], ['pres', 'f_pres', 'lin', -6, 6, dbv], ['pres_f', 'f_pres_f', 'log', 2000, 6000, hz], ['pres_q', 'f_pres_q', 'log', 0.5, 4, (v) => (+v).toFixed(2)], ['air', 'f_air', 'lin', -6, 6, dbv]],
   gate: [['threshold', 'f_threshold', 'lin', -80, -20, dbv], ['range', 'f_range', 'lin', 3, 80, (v) => Math.round(v) + ' dB'],
     ['attack', 'f_attack', 'log', 0.1, 50, msv], ['hold', 'f_hold', 'lin', 1, 300, msv], ['release', 'f_release', 'log', 40, 2000, msv],
     ['expander', 'f_expander', 'sw']],
@@ -310,6 +318,13 @@ function chainBuild() {
   $('fatChain').style.gridTemplateColumns = 'repeat(' + SECS.length + ', minmax(0, 1fr))';
   $('fatChain').innerHTML = SECS.map((sec) => '<button class="mod" data-s="' + sec + '"><div class="name">' + t('f_' + sec) + '</div><div class="meta"><span class="sub"></span><span class="led"></span></div><span class="arrow"></span></button>').join('');
 }
+// the EQ's styles (settings.EQ_STYLES): ours, and "f" (Focusrite Vocaster's published Enhance presets)
+const EQ_FAMILIES = [['ours', [['natural', 'eq_natural'], ['demud', 'eq_demud']]], ['f', [['f-clean', 'Clean'], ['f-warm', 'Warm'], ['f-bright', 'Bright'], ['f-radio', 'Radio']]]];
+let eqFam = null;
+async function eqStyle(name) {
+  try { await api('/api/fat', { input: FM, section: 'eq', key: 'style', value: name }); S = await api('/api/state'); banner(''); } catch (e) { banner(t('send_fail') + e.message); }
+  fatRender();
+}
 async function voiceModel(m) {
   try { await api('/api/fat', { input: 'mic1', section: 'voicefx', key: 'model', value: m }); S = await api('/api/state'); banner(''); } catch (e) { banner(t('send_fail') + e.message); }
   fatDetailBuild(); fatRender();
@@ -317,6 +332,8 @@ async function voiceModel(m) {
 function fatDetailBuild() {
   const sec = FPICK, d = $('fatDetail');
   let h = '<div class="dh"><b>' + t('f_' + sec) + '</b><span class="spacer"></span><label>' + t('f_on') + '<button class="sw" role="switch" id="fd_on"></button></label></div>';
+  if (sec === 'eq') h += '<div class="seg" id="eqFam" style="margin-top:8px">' + EQ_FAMILIES.map(([f]) => '<button data-f="' + f + '">' + t('fam_' + f) + '</button>').join('') + '</div>' +
+    '<div class="seg steps rvstyles" id="eqStyles" style="margin-top:6px"></div><p class="note" id="eqStyleNote"></p>';
   if (sec === 'eq' || sec === 'lowcut') h += '<canvas id="fatEq"></canvas><p class="note">' + t('f_eq_note') + '</p>';
   if (sec === 'voicefx') h += '<div class="lvl"><span>' + t('fx_model') + '</span><div class="seg steps" id="fd_model">' + Object.entries(VFX_NAMES).map(([m, n]) => '<button data-v="' + m + '">' + n + '</button>').join('') + '</div><output></output></div>';
   h += '<div class="pgrid">' + knobsOf(sec).map((it) => rowHtml(it, 'fd_' + it[0])).join('') + '</div>';
@@ -324,6 +341,10 @@ function fatDetailBuild() {
   d.innerHTML = h;
   $('fd_on').onclick = () => F() && sendFat(sec, 'on', F()[sec].on ? 0 : 1);
   if (sec === 'voicefx') for (const b of $('fd_model').children) b.onclick = () => voiceModel(+b.dataset.v);
+  if (sec === 'eq') {
+    $('eqFam').onclick = (e) => { const b = e.target.closest('button'); if (b) { eqFam = b.dataset.f; fatRender(); } };
+    $('eqStyles').onclick = (e) => { const b = e.target.closest('button'); if (b) eqStyle(b.dataset.v); };
+  }
   for (const it of knobsOf(sec)) wireRow(it, 'fd_' + it[0], sec);
   if ($('fatEq')) eqDrag($('fatEq'));
   BUILT = FM + sec + (sec === 'voicefx' ? (F() && F().voicefx || {}).model : '');
@@ -345,6 +366,13 @@ function fatRender() {
   showSw('fd_on', !!f[sec].on);
   if (sec === 'voicefx') for (const b of $('fd_model').children) b.setAttribute('aria-pressed', String(+b.dataset.v === f.voicefx.model));
   for (const it of knobsOf(sec)) showRow(it, 'fd_' + it[0], f[sec][it[0]]);
+  if (sec === 'eq' && $('eqFam')) {
+    const cur = f.eq.style || '', fam = eqFam || (EQ_FAMILIES.find(([, l]) => l.some(([v]) => v === cur)) || ['ours'])[0];
+    for (const b of $('eqFam').children) b.setAttribute('aria-pressed', String(b.dataset.f === fam));
+    if ($('eqStyles').dataset.k !== fam + LANG) { $('eqStyles').dataset.k = fam + LANG; $('eqStyles').innerHTML = EQ_FAMILIES.find(([x]) => x === fam)[1].map(([v, n]) => '<button data-v="' + v + '">' + (n.startsWith('eq_') ? t(n) : n) + '</button>').join(''); }
+    for (const b of $('eqStyles').children) b.setAttribute('aria-pressed', String(b.dataset.v === cur));
+    $('eqStyleNote').textContent = (cur ? '' : t('eq_custom')) + t(fam === 'ours' ? 'eq_style_note' : 'eq_style_pub');
+  }
   if ($('fatEq') && !eqHold) drawFatEq();
   if (typeof scopeRender === 'function') scopeRender();
 }
@@ -368,12 +396,12 @@ function biquadDb(kind, f0, q, gain, f) {
 }
 function fatResponse(f, x) {
   let d = x.lowcut.on ? biquadDb('hp', x.lowcut.freq, Math.SQRT1_2, 0, f) : 0;
-  if (x.eq.on) { for (const [k, f0, q, key] of EQB) d += biquadDb(k, f0, key === 'pres' ? x.eq.pres_q ?? q : q, x.eq[key], f); d += biquadDb('bell', x.eq.mid_f ?? 400, x.eq.mid_q ?? 1.4, x.eq.mid ?? 0, f); }
+  if (x.eq.on) { for (const [k, f0, q, key] of EQB) d += biquadDb(k, key === 'pres' ? x.eq.pres_f ?? f0 : f0, key === 'pres' ? x.eq.pres_q ?? q : q, x.eq[key], f); d += biquadDb('bell', x.eq.mid_f ?? 400, x.eq.mid_q ?? 1.4, x.eq.mid ?? 0, f); }
   return d;
 }
 function fatPoints(x) {
   return [{ id: 'lowcut', name: t('f_lowcut'), f: x.lowcut.freq, g: 0, on: !!x.lowcut.on }].concat(EQB.map(([k, f0, q, key]) => ({
-    id: key, name: t('f_' + key), f: f0, g: k === 'bell' ? x.eq[key] : x.eq[key] / 2, on: !!x.eq.on, half: k !== 'bell' })),
+    id: key, name: t('f_' + key), f: key === 'pres' ? x.eq.pres_f ?? f0 : f0, g: k === 'bell' ? x.eq[key] : x.eq[key] / 2, on: !!x.eq.on, half: k !== 'bell' })),
     [{ id: 'mid', name: t('f_mid'), f: x.eq.mid_f ?? 400, g: x.eq.mid ?? 0, on: !!x.eq.on }]);
 }
 function fitCanvas(c) {
@@ -418,10 +446,10 @@ function eqDrag(c) {
     if (eqHold.id === 'lowcut') {
       const f = Math.pow(10, Math.log10(20) + ((x - 30) / (eqGeo.w - 40)) * 3);
       sendFat('lowcut', 'freq', Math.round(Math.max(40, Math.min(400, f))));
-    } else if (eqHold.id === 'mid') {
-      const f = Math.pow(10, Math.log10(20) + ((x - 30) / (eqGeo.w - 40)) * 3);
-      sendFat('eq', 'mid_f', Math.round(Math.max(200, Math.min(1000, f)) / 10) * 10);
-      sendFat('eq', 'mid', Math.max(-6, Math.min(6, Math.round(((eqGeo.h / 2 - y) / (eqGeo.h / 2 - 14)) * 12 * 2) / 2)));
+    } else if (eqHold.id === 'mid' || eqHold.id === 'pres') {
+      const f = Math.pow(10, Math.log10(20) + ((x - 30) / (eqGeo.w - 40)) * 3), [lo, hi, st] = eqHold.id === 'mid' ? [200, 1000, 10] : [2000, 6000, 50];
+      sendFat('eq', eqHold.id + '_f', Math.round(Math.max(lo, Math.min(hi, f)) / st) * st);
+      sendFat('eq', eqHold.id, Math.max(-6, Math.min(6, Math.round(((eqGeo.h / 2 - y) / (eqGeo.h / 2 - 14)) * 12 * 2) / 2)));
     } else {
       const gdb = ((eqGeo.h / 2 - y) / (eqGeo.h / 2 - 14)) * 12 * (eqHold.half ? 2 : 1);
       sendFat('eq', eqHold.id, Math.max(-6, Math.min(6, Math.round(gdb * 2) / 2)));
@@ -467,11 +495,13 @@ function ioBuild() {
   for (const b of BUSES) $('mono_' + b.id).onclick = () => sendSet('mono', bk[b.id], !setting('mono', bk[b.id]));
   // styles (settings.REVERB_STYLES, after TC-Helicon R1's) and an amount (the mics' send; the middle is the style's
   // own level), the reverb's own settings under Advanced. No on/off: its on word changes nothing (recorded 2026-11-09)
-  $('reverb').innerHTML = '<div class="seg steps rvstyles" id="rvStyle">' + RV_STYLES.map((k) => '<button data-v="' + k + '">' + t('rv_' + k) + '</button>').join('') + '</div>' +
+  $('reverb').innerHTML = '<div class="seg" id="rvFam" style="margin-top:4px">' + RV_FAMILIES.map(([f]) => '<button data-f="' + f + '">' + t('fam_' + f) + '</button>').join('') + '</div>' +
+    '<div class="seg steps rvstyles" id="rvStyle"></div>' +
     lvl('rvAmt', t('rv_amount'), 0, 100, 1) + '<p class="note" id="rvNote"></p>' +
     '<details class="rvadv"><summary>' + t('rv_adv') + '</summary>' +
     lvl('rvMix', t('rv_mix'), 0, 100, 1) + lvl('rvPre', t('rv_pre'), 0, 200, 1) + lvl('rvSize', t('rv_size'), 0, 100, 1) + lvl('rvHp', t('rv_hp'), 20, 1000, 5) + '</details>';
-  for (const b of $('rvStyle').children) b.onclick = () => rvSet({ style: b.dataset.v });
+  $('rvFam').onclick = (e) => { const b = e.target.closest('button'); if (b) { rvFam = b.dataset.f; ioRender(); } };
+  $('rvStyle').onclick = (e) => { const b = e.target.closest('button'); if (b) rvSet({ style: b.dataset.v }); };
   wireRange('rvAmt', (v) => sendSet('reverb', '', { amount: v / 100 }), (v) => (v <= 0 ? t('off') : Math.round(v) + '%'));
   $('rvAmt').addEventListener('change', () => rvSet({}));
   const rv = (k, scale) => (v) => sendSet('reverb', '', { [k]: v * scale });
@@ -480,7 +510,18 @@ function ioBuild() {
   wireRange('rvSize', rv('size', 0.01), (v) => Math.round(v) + '%');
   wireRange('rvHp', rv('hp', 1), (v) => Math.round(v) + ' Hz');
 }
-const RV_STYLES = ['ambience', 'room', 'studio', 'club', 'plate', 'hall', 'theatre', 'arena'];
+// the reverb's styles (settings.REVERB_STYLES) in their families: ours, and two made from published presets ("y"
+// Yamaha SPX2000's, "d" Dragonfly Reverb's; the page names the families only)
+const RV_FAMILIES = [['ours', ['ambience', 'room', 'studio', 'club', 'plate', 'hall', 'theatre', 'arena']],
+  ['y', ['y-vocal-plate', 'y-vocal-plate-x', 'y-vocal', 'y-vocal-chamber', 'y-presence', 'y-small-room', 'y-medium-hall', 'y-echo-room']],
+  ['d', ['d-large-vocal-room', 'd-vocal-studio', 'd-small-vocal-hall', 'd-medium-vocal-hall', 'd-large-vocal-hall', 'd-clear-plate']]];
+const RV_STYLES = RV_FAMILIES.flatMap(([, l]) => l);
+const RV_LABEL = { 'y-vocal-plate': 'Vocal Plate', 'y-vocal-plate-x': 'Vocal Plate X', 'y-vocal': 'Vocal', 'y-vocal-chamber': 'Vocal Chamber', 'y-presence': 'Presence',
+  'y-small-room': 'Small Room', 'y-medium-hall': 'Medium Hall', 'y-echo-room': 'Echo Room', 'd-large-vocal-room': 'Large Vocal Room', 'd-vocal-studio': 'Vocal Studio',
+  'd-small-vocal-hall': 'Small Vocal Hall', 'd-medium-vocal-hall': 'Medium Vocal Hall', 'd-large-vocal-hall': 'Large Vocal Hall', 'd-clear-plate': 'Clear Plate' };
+const rvName = (k) => RV_LABEL[k] || t('rv_' + k);
+const rvFamOf = (k) => (RV_FAMILIES.find(([, l]) => l.includes(k)) || [null])[0];
+let rvFam = null;
 // a style or the amount let go: the state again (the reverb's return may have been put into the mixes)
 async function rvSet(v) {
   try { if (Object.keys(v).length) await api('/api/set', { what: 'reverb', key: '', value: v }); S = await api('/api/state'); banner(''); } catch (e) { banner(t('send_fail') + e.message); }
@@ -501,9 +542,12 @@ function ioRender() {
   const bk = { 0: 'main', 1: 'stream-a', 2: 'stream-b' };
   for (const b of BUSES) showSw('mono_' + b.id, setting('mono', bk[b.id]));
   const r = setting('reverb');
+  const fam = rvFam || rvFamOf(r && r.style) || 'ours';
+  for (const b of $('rvFam').children) b.setAttribute('aria-pressed', String(b.dataset.f === fam));
+  if ($('rvStyle').dataset.k !== fam + LANG) { $('rvStyle').dataset.k = fam + LANG; $('rvStyle').innerHTML = RV_FAMILIES.find(([f]) => f === fam)[1].map((k) => '<button data-v="' + k + '">' + rvName(k) + '</button>').join(''); }
   for (const b of $('rvStyle').children) b.setAttribute('aria-pressed', String(!!r && r.style === b.dataset.v));
   showRange('rvAmt', r && r.amount !== undefined ? r.amount * 100 : undefined, (v) => (v <= 0 ? t('off') : Math.round(v) + '%'));
-  $('rvNote').textContent = r && r.style === 'custom' ? t('rv_custom') : t('rv_note');
+  $('rvNote').textContent = r && r.style === 'custom' ? t('rv_custom') : t(fam === 'ours' ? 'rv_note' : 'rv_note_pub');
   showRange('rvMix', r ? r.mix * 100 : undefined, (v) => Math.round(v) + '%');
   showRange('rvPre', r ? r.predelay * 1000 : undefined, (v) => Math.round(v) + ' ms');
   showRange('rvSize', r ? r.size * 100 : undefined, (v) => Math.round(v) + '%');
