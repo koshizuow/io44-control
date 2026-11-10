@@ -2,7 +2,7 @@
 serves ui/. Started by `python3 -m io44 ui`; the page is at http://127.0.0.1:8794/.
 
   GET  /api/state   the settings kept here (mixes, settings, the mics' processing), the names, the rate, PipeWire
-  GET  /api/meters  the meters by name (dB), the Main knob
+  GET  /api/meters  the meters by name (dB), the Main knob; ?raw: every value of the reply as it comes
   POST /api/mix     {"bus": 1, "source": 3, "db": -6.0}: one source in one bus
   POST /api/set     {"what": "gain", "key": "mic1", "value": 30}: one setting (see __main__.apply_setting)
   POST /api/pipewire {"install": true|false}
@@ -102,6 +102,9 @@ def serve(port: int, state_load, state_save, apply_setting, pipewire_installed, 
                                            fresh=bool(s.get("fresh")), pipewire=pipewire_installed(), rate=rate_get(),
                                            connected=link.dev is not None, error=link.error))
             if p == "/api/meters":
+                if "raw" in self.path:  # every value of the meter reply, for finding what each one is
+                    m = link.run(lambda d: {"raw": [round(x, 4) for x in d.raw_meters()]})
+                    return self.send(200, {"ok": m is not None, "meters": m, "error": link.error})
                 m = link.run(lambda d: dict(d.meters(), device=d.state()))
                 return self.send(200, {"ok": m is not None, "meters": m, "error": link.error})
             f = os.path.normpath(os.path.join(UI, (p.lstrip("/") or "index.html")))

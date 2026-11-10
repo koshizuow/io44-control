@@ -37,12 +37,18 @@ OFF = -145.0
 # was). The rest is a reading of levels at rest and marked "?".
 METERS = {
     "playback": (0, 1), "virtual-a": (2, 3), "virtual-b": (4, 5),
-    "mic1": (6,), "mic1-post?": (7,), "mic2?": (8,), "mic2-post?": (9,),
+    "mic1": (6,), "mic1-chain": (7,), "mic2?": (8,), "mic2-chain?": (9,),
     "fx?": (10, 11), "line?": (12, 13),
     "main": (14, 15), "stream-a": (16, 17), "stream-b": (18, 19),
 }
 GAIN_SLOTS = (48, 49, 50)       # each input's gain in dB, as set (read back, checked for Mic 1 and Mic 2)
-GAIN_REDUCTION = range(20, 38)   # 18 values at 1.0 when nothing is reduced (the Fat Channel's dynamics, which ones?)
+GAIN_REDUCTION = range(20, 38)   # 18 values at 1.0 when nothing is reduced (the Fat Channel's dynamics)
+# Mic 1's gate, compressor and limiter: each a gain, 1.0 when it reduces nothing (2026-11-10, Main Out L into Input 1,
+# a 1 kHz tone: the gate closed 26 to 0.06; the compressor at -40 dB 8:1 put 27 at 0.40, -8.0 dB where 8.1 was
+# expected from slot 7, and 2:1 at 0.59, -4.6 where 4.65; the limiter at -12 dB put 28 at 0.59). Slot 7 is the level
+# entering the chain (what the compressor reads: before the EQ, which the slot does not follow), 3 dB under slot 6.
+# The headset's three are probably the next ones (29-31), not checked.
+GR_MIC1 = {"gate": 26, "comp": 27, "limit": 28}
 MAIN_KNOB = 46                   # the Main output knob, 0..1
 
 
@@ -122,6 +128,7 @@ class Io44:
         v = self.raw_meters()
         out = {k: [round(db(v[i]), 1) for i in idx] for k, idx in METERS.items()}
         out["main-knob"] = round(v[MAIN_KNOB], 3)
+        out["gr-mic1"] = {k: round(db(v[i]), 1) for k, i in GR_MIC1.items()}
         return out
 
     def _set(self, target: int, index: int, kind: str, data: bytes, ch: int = 0):
