@@ -34,6 +34,11 @@ _lib.libusb_set_interface_alt_setting.argtypes = [C.c_void_p, C.c_int, C.c_int]
 _lib.libusb_bulk_transfer.argtypes = [C.c_void_p, C.c_ubyte, C.c_void_p, C.c_int, C.POINTER(C.c_int), C.c_uint]
 _lib.libusb_close.argtypes = [C.c_void_p]
 _lib.libusb_error_name.restype = C.c_char_p
+_lib.libusb_get_device.restype = C.c_void_p
+_lib.libusb_get_device.argtypes = [C.c_void_p]
+for f in ("libusb_get_bus_number", "libusb_get_device_address"):
+    getattr(_lib, f).restype = C.c_uint8
+    getattr(_lib, f).argtypes = [C.c_void_p]
 
 
 class UsbError(OSError):
@@ -58,6 +63,11 @@ class Device:
         _check(_lib.libusb_claim_interface(self.h, IFACE), "claim interface 5")
         # alternate setting 0 has no endpoints; the bulk pair is on 1
         _check(_lib.libusb_set_interface_alt_setting(self.h, IFACE, 1), "interface 5 alt 1")
+
+    def where(self) -> tuple:
+        """the bus and the address the io44 has now: the address is new each time it is plugged in"""
+        dev = _lib.libusb_get_device(self.h)
+        return (_lib.libusb_get_bus_number(dev), _lib.libusb_get_device_address(dev))
 
     def write(self, data: bytes, timeout_ms=1000):
         n = C.c_int()

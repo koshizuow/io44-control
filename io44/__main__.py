@@ -55,6 +55,9 @@ from .device import BUSES, SOURCES, BUS_NAMES, SOURCE_NAMES, Io44
 # the settings kept on this computer: ~/.config/io44-control on Linux, %APPDATA%\io44-control on Windows
 STATE = os.path.join((os.environ.get("APPDATA") if sys.platform == "win32" else None) or os.environ.get("XDG_CONFIG_HOME")
                      or os.path.expanduser("~/.config"), "io44-control", "state.json")
+# which plugging-in of the io44 last got the settings (its USB bus and address): the io44 starts on its own defaults
+# each time it is plugged in, and only a running page server writes them then by itself
+APPLIED = os.path.join(os.path.dirname(STATE), "applied.json")
 PW_CONF = os.path.join(os.environ.get("XDG_CONFIG_HOME") or os.path.expanduser("~/.config"),
                        "pipewire", "pipewire.conf.d", "io44-control.conf")
 WP_RATE = os.path.join(os.environ.get("XDG_CONFIG_HOME") or os.path.expanduser("~/.config"),
@@ -178,19 +181,59 @@ def follow_blend(d: Io44, raw: tuple):
     save(s)
 
 
+def mark_applied(d: Io44):
+    try:
+        os.makedirs(os.path.dirname(APPLIED), exist_ok=True)
+        with open(APPLIED, "w") as f:
+            json.dump({"where": list(d.d.where())}, f)
+    except OSError:
+        pass
+
+
+def cli_open() -> Io44:
+    """the io44 for one command. Plugged in since the settings were last written (and no page server was running to
+    write them), it is still on its own defaults (2026-11-10: its gate shut Mic 1): the settings go first, 48V never."""
+    d = Io44()
+    try:
+        prev = json.load(open(APPLIED)).get("where")
+    except (OSError, ValueError):
+        prev = None
+    if prev != list(d.d.where()):
+        print(f"io44-control: the io44 was plugged in since the settings were last written: wrote {apply_all(d, load())} "
+              "settings first", file=sys.stderr, flush=True)
+        mark_applied(d)
+    return d
+
+
 def cmd_apply():
     s = load()
     with Io44() as d:
         print(f"wrote {apply_all(d, s)} settings (Main's monitor blend {s['blend']:g})")
+        mark_applied(d)
+
+
+def meter_line(m: dict) -> str:
+    """one line of meters: levels in dB (a list per meter), the gain reductions (gr-mic1: a dict of the parts), the
+    front knob (a number). A value of another shape is shown as it is, so a new meter never stops the command."""
+    out = []
+    for k, v in m.items():
+        if isinstance(v, (list, tuple)):
+            out.append(f"{k} " + "/".join(f"{x:.0f}" if isinstance(x, (int, float)) else str(x) for x in v))
+        elif isinstance(v, dict):
+            out.append(f"{k} " + " ".join(f"{p} {x:.1f}" if isinstance(x, (int, float)) else f"{p} {x}" for p, x in v.items()))
+        elif isinstance(v, float):
+            out.append(f"{k} {v:.2f}")
+        else:
+            out.append(f"{k} {v}")
+    return "  ".join(out)
 
 
 def cmd_meters(secs: float):
-    with Io44() as d:
+    with cli_open() as d:
         end = time.time() + secs
         while time.time() < end:
             m = d.meters()
-            print("  ".join(f"{k} {'/'.join(f'{x:.0f}' for x in v)}" for k, v in m.items() if k != "main-knob")
-                  + f"  main-knob {m['main-knob']:.2f}", flush=True)
+            print(meter_line(m), flush=True)
             time.sleep(0.2)
 
 
@@ -203,7 +246,7 @@ def cmd_mix(args):
     if len(args) != 3 or args[0] not in BUSES or args[1] not in SOURCES:
         sys.exit(__doc__)
     bus, src, g = BUSES[args[0]], SOURCES[args[1]], float(args[2])
-    with Io44() as d:
+    with cli_open() as d:
         d.set_mix(bus, [(src, g)])
     note_mix(s, bus, src, g)
     save(s)
@@ -281,7 +324,7 @@ def cmd_set(a):
 def _cmd_set(a):
     what = a[0]
     on = {"on": True, "off": False, "mute": True, "unmute": False, "processed": True, "dry": False}
-    with Io44() as d:
+    with cli_open() as d:
         if what == "record" and len(a) == 3 and a[1] in device.INPUTS and a[2] in on:
             print("record", a[1], "processed" if apply_setting(d, "record_processed", a[1], on[a[2]]) else "dry")
         elif what in ("gain", "pan") and len(a) == 3 and a[1] in device.INPUTS:
@@ -308,7 +351,7 @@ def _cmd_set(a):
 
 
 def cmd_status():
-    with Io44() as d:
+    with cli_open() as d:
         st = d.state()
         b = d.blend()
     print("from the io44: " + ", ".join(f"{device.INPUT_NAMES[c]} gain {g:g} dB" for c, g in st["gain"].items())
@@ -448,6 +491,7 @@ def cmd_ui(port: int, open_browser: bool):
         # as Universal Control does: the whole state to the io44 when it is (again) there: started, plugged in, or
         # back after it was unplugged or powered off (it starts on its own defaults then)
         print(f"io44-control: the io44 is here: wrote {apply_all(d, load())} settings", flush=True)
+        mark_applied(d)
     if sys.platform == "win32":  # the sample rate through the USB audio driver (rate_win), no PipeWire
         from . import rate_win
 
@@ -508,7 +552,7 @@ if __name__ == "__main__":
         cmd_ui(int(a[a.index("--port") + 1]) if "--port" in a else 8794, "--no-browser" not in a)
     elif a[:1] == ["fat"] and len(a) == 5:
         try:
-            with Io44() as d:
+            with cli_open() as d:
                 print(a[1], a[2], a[3], apply_fat(d, a[1], a[2], a[3], a[4]))
         except ValueError as e:
             sys.exit(str(e))
