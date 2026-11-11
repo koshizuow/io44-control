@@ -584,7 +584,7 @@ if __name__ == "__main__":
         cmd_apply()
     elif a[:1] == ["status"]:
         cmd_status()
-    elif a[:1] and a[0] in ("gain", "dsp", "record", "pan", "main-volume", "phones-volume", "phones", "mono", "reverb"):
+    elif a[:1] and a[0] in ("gain", "dsp", "record", "pan", "main-volume", "phones-volume", "phones", "mono", "reverb", "preset"):
         cmd_set(a)
     elif a[:1] == ["rate"]:
         if len(a) == 1:
