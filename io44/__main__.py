@@ -32,6 +32,10 @@ Control needed).
   python3 -m io44 phones-volume 0..100        headphone volume in %
   python3 -m io44 phones mute|unmute
   python3 -m io44 mono main|stream-a|stream-b on|off
+  python3 -m io44 preset mic1|headset talk|sing
+                                              the mic's processing as stream-mic's Talk (Mic 1: directional, the
+                                              headset: omni) or Sing, and the reverb's amount (singing on, talking
+                                              off); the gain stays
   python3 -m io44 reverb style ambience|room|studio|club|plate|hall|theatre|arena
   python3 -m io44 reverb amount 0..1          how much of the mics goes to the reverb (0 off, 0.5 the style's own)
   python3 -m io44 reverb [mix=0..1] [predelay=MS] [size=0..1] [hp=HZ]
@@ -300,14 +304,24 @@ def apply_setting(d: Io44, what: str, key: str, value):
         s["blend"] = b
         d.write_all(settings.blend_writes(s))
         value = b
-    elif what == "reverb":
+    elif what in ("reverb", "preset"):
+        if what == "preset":
+            # a mic's preset (settings.MIC_PRESETS): its processing, then the reverb's amount (the style kept, hall
+            # when there was none)
+            if k not in settings.MIC_PRESETS:
+                raise ValueError("the presets are for Mic 1 and the headset")
+            amount = settings.mic_preset(s["inputs"][k], k, str(value))
+            d.write_all([w for sec in ("lowcut", "eq", "gate", "comp", "limit")
+                         for w in settings.fat_writes(s, settings.INPUTS.index(k), sec)])
+            preset = str(value)
+            value = {"amount": amount} if s["reverb"].get("style") else {"style": "hall", "amount": amount}
         # {"style": "hall"}, {"amount": 0.5} or the reverb's own settings (mix, predelay, size, hp)
         for kk, v in value.items():
             settings.reverb_set(s, kk, v)
         send = settings.reverb_send(s)
         d.write_all([settings.reverb_write(s)] + [(0, 0, "Para", struct.pack("<If", 1, max(settings.OFF_DB, send)), ci)
                                                   for ci in (0, 1)] + [("mprm", b, g) for b, g in settings.mixes(s).items()])
-        value = s["reverb"]
+        value = s["reverb"] if what == "reverb" else preset
     else:
         raise ValueError(what)
     save(s)
@@ -337,6 +351,8 @@ def _cmd_set(a):
             print("phones mute", apply_setting(d, "phones-mute", "", on[a[1]]))
         elif what == "mono" and len(a) == 3 and a[1] in BUSES and a[2] in on:
             print("mono", a[1], apply_setting(d, "mono", a[1], on[a[2]]))
+        elif what == "preset" and len(a) == 3 and a[1] in ("mic1", "headset", "mic2"):
+            print("preset", a[1], apply_setting(d, "preset", a[1], a[2]))
         elif what == "reverb":
             ch = {}
             if len(a) == 3 and a[1] in ("style", "amount"):

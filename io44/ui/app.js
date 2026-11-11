@@ -22,6 +22,7 @@ const I18N = {
     rv_ambience: 'Ambience', rv_room: 'Room', rv_studio: 'Studio', rv_club: 'Club', rv_plate: 'Plate', rv_hall: 'Hall', rv_theatre: 'Theatre', rv_arena: 'Arena',
     rv_note: '八種風格，用 io44 reverb 能調的長度、預延遲、低切做出來。量在 50% 是該風格的建議量；0 是不送。混音裡的 Reverb 推桿決定各混音聽到多少。',
     rv_note_pub: '照這一家公開的預設數值，換算成 io44 reverb 能調的長度、預延遲、低切；亮暗、初期反射、高切做不到，所以接近但不一樣。量在 50% 是該風格的建議量。',
+    preset_lead: '一鍵套用：', preset_talk: '說話', preset_sing: '唱歌', preset_note_mic1: '說話照 stream-mic 的說話（指向），唱歌照它的唱歌；唱歌會打開 reverb、說話關掉（reverb 兩支麥共用）。增益不動，壓縮器的門檻和補償也會換成預設的值。', preset_note_headset: '說話照 stream-mic 的說話（無指向），唱歌照它的唱歌；唱歌會打開 reverb、說話關掉（reverb 兩支麥共用）。增益不動，壓縮器的門檻和補償也會換成預設的值。',
     fam_ours: '標準', fam_y: 'Y 家', fam_d: 'D 家', fam_f: 'F 家', eq_natural: '自然', eq_demud: '去悶', eq_custom: '目前是自訂的值。',
     eq_style_note: '選一個風格當起點（會打開 EQ 和低切）；改了數值就是自訂。',
     eq_style_pub: '這一家公開的預設數值：中頻、Presence 照原本的頻率和 Q；最低、最高那段換成我們的 Low、Air 架形，所以接近但不完全一樣。',
@@ -65,6 +66,7 @@ const I18N = {
     rv_ambience: 'Ambience', rv_room: 'Room', rv_studio: 'Studio', rv_club: 'Club', rv_plate: 'Plate', rv_hall: 'Hall', rv_theatre: 'Theatre', rv_arena: 'Arena',
     rv_note: 'Eight styles, made from what the io44’s reverb lets one set: length, pre-delay, low cut. At 50% the amount is the style’s own; 0 sends nothing. The Reverb fader in each mix sets how much that mix gets.',
     rv_note_pub: 'This maker’s published preset values, turned into what the io44’s reverb can set (length, pre-delay, low cut): its brightness, early reflections and high cut cannot be had, so close, not the same. At 50% the amount is the style’s own.',
+    preset_lead: 'One click:', preset_talk: 'Talk', preset_sing: 'Sing', preset_note_mic1: 'Talk as stream-mic’s Talk (directional), Sing as its Sing; Sing turns the reverb on, Talk off (both mics share it). The gain stays; the compressor’s threshold and makeup take the preset’s values too.', preset_note_headset: 'Talk as stream-mic’s Talk (omni), Sing as its Sing; Sing turns the reverb on, Talk off (both mics share it). The gain stays; the compressor’s threshold and makeup take the preset’s values too.',
     fam_ours: 'Standard', fam_y: 'Y', fam_d: 'D', fam_f: 'F', eq_natural: 'Natural', eq_demud: 'De-mud', eq_custom: 'Custom values. ',
     eq_style_note: 'A style to start from (it switches the EQ and the low cut on); changing a value makes it custom.',
     eq_style_pub: 'This maker’s published preset values: the mid and presence bells at their own frequency and Q, their lowest and highest on our Low and Air shelves, so near, not the same.',
@@ -312,6 +314,12 @@ function fatBuild() {
     FM = b.dataset.m; SECS = secsOf(FM); if (!SECS.includes(FPICK)) FPICK = 'eq';
     chainBuild(); fatDetailBuild(); fatRender();
   };
+  $('fatPreset').innerHTML = ['talk', 'sing'].map((p) => '<button data-p="' + p + '">' + t('preset_' + p) + '</button>').join('');
+  $('fatPreset').onclick = async (e) => {
+    const b = e.target.closest('button'); if (!b) return;
+    try { await api('/api/set', { what: 'preset', key: FM, value: b.dataset.p }); S = await api('/api/state'); banner(''); } catch (x) { banner(t('send_fail') + x.message); }
+    fatDetailBuild(); fatRender(); if (typeof render === 'function') render();
+  };
   chainBuild();
   $('fatChain').onclick = (e) => { const m = e.target.closest('.mod'); if (m) { FPICK = m.dataset.s; fatDetailBuild(); fatRender(); } };
   fatDetailBuild();
@@ -354,6 +362,7 @@ function fatDetailBuild() {
 function fatRender() {
   const f = F();
   for (const b of $('fatMic').children) b.setAttribute('aria-pressed', String(b.dataset.m === FM));
+  if ($('fatPresetNote')) $('fatPresetNote').textContent = t('preset_note_' + FM);
   for (const m of $('fatChain').children) {
     m.classList.toggle('on', secOn(m.dataset.s, f));
     m.setAttribute('aria-selected', String(m.dataset.s === FPICK));

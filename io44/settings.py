@@ -197,6 +197,48 @@ EQ_STYLES = {
 }
 
 
+# ---- a mic's presets: Talk and Sing (2026-11-11) ---------------------------------------------------------------------
+# stream-mic's presets as far as the io44 goes (no de-esser, no noise reduction): Mic 1 talks as stream-mic's Talk
+# (directional), the headset as its Talk (omni); both sing as its Sing. The compressor is a plain one: the curve of
+# stream-mic's at Amount 50 (talk) and 40 (sing), and attack and release whose real times match stream-mic's at 4 dB
+# of reduction (measured through a loop, Main Out L into Input 1: the io44's times depend on the depth, and attack
+# and release act on each other; the page's fields are not the times). The gain stays the user's; the reverb's
+# style stays unless there is none (then hall), its amount is the preset's (it is the same for both mics).
+_GATE_TALK = {"on": 1, "expander": 1, "threshold": -54.0, "range": 12.0, "attack": 3.0, "hold": 80.0, "release": 200.0}
+_COMP_TALK = {"on": 1, "threshold": -26.1, "ratio": 3.2, "knee": 12.0, "attack": 24.5, "release": 166.0, "makeup": 6.0}
+_SING = {"lowcut": {"on": 1, "freq": 70.0},
+         "eq": {"on": 1, "style": "", "low": 1.0, "mid": 0.0, "mid_f": 400.0, "mid_q": 1.4, "pres": 1.0, "pres_f": 3000.0,
+                "pres_q": 1.0, "air": 1.5},
+         "gate": {"on": 1, "expander": 1, "threshold": -58.0, "range": 8.0, "attack": 3.0, "hold": 150.0, "release": 600.0},
+         "comp": {"on": 1, "threshold": -22.6, "ratio": 2.9, "knee": 12.0, "attack": 25.3, "release": 156.0, "makeup": 5.0},
+         "limit": {"on": 1, "ceiling": -1.0, "release": 60.0},
+         "reverb": 0.5}
+MIC_PRESETS = {
+    "mic1": {
+        "talk": {"lowcut": {"on": 1, "freq": 90.0},
+                 "eq": {"on": 1, "style": "", "low": 0.0, "mid": -2.0, "mid_f": 315.0, "mid_q": 1.4, "pres": 1.5,
+                        "pres_f": 2500.0, "pres_q": 0.7, "air": -2.5},
+                 "gate": _GATE_TALK, "comp": _COMP_TALK, "limit": {"on": 1, "ceiling": -1.0, "release": 50.0}, "reverb": 0.0},
+        "sing": _SING},
+    "headset": {
+        "talk": {"lowcut": {"on": 1, "freq": 80.0},
+                 "eq": {"on": 1, "style": "", "low": 1.0, "mid": 0.0, "mid_f": 400.0, "mid_q": 1.4, "pres": -0.5,
+                        "pres_f": 3000.0, "pres_q": 1.0, "air": 0.0},
+                 "gate": _GATE_TALK, "comp": _COMP_TALK, "limit": {"on": 1, "ceiling": -1.0, "release": 50.0}, "reverb": 0.0},
+        "sing": _SING},
+}
+
+
+def mic_preset(ch: dict, mic: str, name: str) -> float:
+    """a mic's processing set to its preset; returns the reverb amount the preset wants"""
+    p = MIC_PRESETS.get(mic, {}).get(name)
+    if p is None:
+        raise ValueError(f"no preset {name} for {mic}")
+    for sec in ("lowcut", "eq", "gate", "comp", "limit"):
+        ch[sec].update(p[sec])
+    return p["reverb"]
+
+
 def eq_style(ch: dict, name: str):
     """a mic's EQ and low cut set to a style (both switched on)"""
     if name not in EQ_STYLES:
